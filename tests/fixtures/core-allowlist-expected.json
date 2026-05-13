@@ -1,0 +1,67 @@
+[
+	{
+		"id": "wp-logo",
+		"parent": "",
+		"conditions": ["always"]
+	},
+	{
+		"id": "site-name",
+		"parent": "",
+		"conditions": ["always"]
+	},
+	{
+		"id": "site-editor",
+		"parent": "",
+		"conditions": ["block-theme", "!is_admin()"]
+	},
+	{
+		"id": "customize",
+		"parent": "",
+		"conditions": ["always"]
+	},
+	{
+		"id": "my-sites",
+		"parent": "",
+		"conditions": ["multisite"]
+	},
+	{
+		"id": "command-palette",
+		"parent": "",
+		"conditions": ["is_admin()", "wp-core-commands enqueued"]
+	},
+	{
+		"id": "new-content",
+		"parent": "",
+		"conditions": ["always"]
+	},
+	{
+		"id": "comments",
+		"parent": "",
+		"conditions": ["always"]
+	},
+	{
+		"id": "updates",
+		"parent": "",
+		"conditions": ["network-admin"]
+	},
+	{
+		"id": "menu-toggle",
+		"parent": "",
+		"conditions": ["always"]
+	},
+	{
+		"id": "my-account",
+		"parent": "top-secondary",
+		"conditions": ["always"]
+	},
+	{
+		"id": "search",
+		"parent": "top-secondary",
+		"conditions": ["!is_admin()"]
+	},
+	{
+		"id": "recovery-mode",
+		"parent": "top-secondary",
+		"conditions": ["recovery-mode"]
+	}
+]

@@ -3,11 +3,11 @@
 	<description>WordPress Coding Standards for wp-admin-bar-overflow.</description>
 
 	<file>src</file>
-	<file>tests</file>
 	<file>wp-admin-bar-overflow.php</file>
 
 	<exclude-pattern>vendor/*</exclude-pattern>
 	<exclude-pattern>node_modules/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
 
 	<arg name="basepath" value="."/>
 	<arg name="colors"/>
@@ -17,8 +17,6 @@
 	<rule ref="WordPress">
 		<!-- The plugin requires PHP 8.0+, so short array syntax is fine. -->
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
-		<!-- Allow modern PHP type declarations on filter callbacks. -->
-		<exclude name="WordPress.PHP.DisallowShortTernary"/>
 	</rule>
 
 	<rule ref="WordPress-Extra"/>
