@@ -23,7 +23,7 @@ assignees: ''
 - Browser + version:
 - Viewport width (especially relevant for overflow / responsive bugs):
 - Active plugins (or a representative subset that reproduces it):
-- Plugin version (`wp-admin-bar-overflow` — see plugin header in `Plugins` screen):
+- Plugin version (`wp-admin-bar-overflow`; see plugin header in `Plugins` screen):
 
 ## Console / network errors
 

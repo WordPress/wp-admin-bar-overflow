@@ -9,7 +9,7 @@ The current maintainer set, with affiliation disclosed.
 
 ## Affiliation disclosure
 
-Both initial maintainers work at Automattic, the company that builds WordPress.com and contributes substantially to WordPress core. The plugin was incubated there before being published in the open. The repo currently lives under the `Automattic` GitHub org as a temporary holding location (see [`README.md`](README.md) § Status); it will move to the `WordPress` GitHub org — community-branded, not Automattic-product-branded — before the v0.1.0 release, so anyone in the WordPress community can contribute on equal footing.
+Both initial maintainers work at Automattic, the company that builds WordPress.com and contributes substantially to WordPress core. The plugin was incubated there before being published in the open. The repo currently lives under the `Automattic` GitHub org as a temporary holding location (see [`README.md`](README.md) § Status); it will move to the `WordPress` GitHub org (community-branded, not Automattic-product-branded) before the v0.1.0 release, so anyone in the WordPress community can contribute on equal footing.
 
 Decisions are made on the merits in public threads (Issues, Discussions, PR review). No private decision-making channel takes precedence over public discussion. Where a decision needs a tie-breaker, the engineering lead has the final call on engineering matters and the design lead on design matters; in both cases the rationale is documented in the relevant Issue or Discussion.
 

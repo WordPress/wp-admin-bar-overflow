@@ -9,12 +9,12 @@
  *
  * Two leak classes are checked:
  *
- *   1. Host-system tokens (literal substring match) — function names,
+ *   1. Host-system tokens (literal substring match): function names,
  *      constants, and class-namespace prefixes that only exist on a
  *      specific host (e.g. WordPress.com / Atomic). These leak host
  *      coupling into otherwise portable source.
  *
- *   2. Host-owned admin-bar node IDs (regex match) — when the trigger's
+ *   2. Host-owned admin-bar node IDs (regex match): when the trigger's
  *      insertion target is resolved, the public-plugin renderer must call
  *      `apply_filters( 'wp_admin_bar_overflow_trigger_insert_before_ids',
  *      array( 'my-account' ) )` rather than naming host-specific IDs
@@ -121,5 +121,5 @@ if ( ! empty( $found ) ) {
 
 $token_count   = count( $host_system_tokens );
 $pattern_count = count( $host_node_id_patterns );
-echo "OK — no source-boundary violations in /src/. Checked {$token_count} host-system tokens + {$pattern_count} host-owned node-id regex patterns.\n";
+echo "OK; no source-boundary violations in /src/. Checked {$token_count} host-system tokens + {$pattern_count} host-owned node-id regex patterns.\n";
 exit( 0 );

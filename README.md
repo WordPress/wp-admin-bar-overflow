@@ -5,15 +5,17 @@
 [![License: GPL-2.0+](https://img.shields.io/badge/license-GPL--2.0%2B-blue.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-The WordPress admin bar (`#wpadminbar`) crowds quickly at narrow viewports. Install a handful of plugins and their admin-bar nodes start colliding with the right-side items, falling off-screen, or becoming inaccessible on mobile — exactly the cohort that needs quick access most.
+The WordPress admin bar (`#wpadminbar`) crowds quickly at narrow viewports. Install a handful of plugins and their admin-bar nodes start colliding with the right-side items, falling off-screen, or becoming inaccessible on mobile, exactly the cohort that needs quick access most.
 
-**WP Admin Bar Overflow** is a small WordPress plugin that gives plugin-added admin-bar nodes a responsive overflow path. As the viewport narrows, plugin nodes that no longer fit overflow into a right-side **Plugins** dropdown. On tablet and mobile, all plugin nodes group under the dropdown unconditionally so they remain reachable on every screen size. The original DOM nodes stay in place at their registered positions — plugin JavaScript that binds to specific node IDs continues to work — and click events on the mirrored dropdown items are forwarded to the originals.
+**WP Admin Bar Overflow** is a small WordPress plugin that gives plugin-added admin-bar nodes a responsive overflow path. As the viewport narrows, plugin nodes that no longer fit overflow into a right-side **Plugins** dropdown. On tablet and mobile, all plugin nodes group under the dropdown unconditionally so they remain reachable on every screen size. The original DOM nodes stay in place at their registered positions (plugin JavaScript that binds to specific node IDs continues to work), and click events on the mirrored dropdown items are forwarded to the originals.
 
 It is built incrementally on top of Core's existing `WP_Admin_Bar` nested-menu pattern: a small PHP classifier reads the registered nodes, a thin layer of plain ES-module JavaScript handles the overflow detection and mirroring, and a small set of filter hooks lets host adapters customise classification, priority, and trigger placement.
 
+You can try v0.1.0-alpha in a sandbox by loading the bundled Playground blueprint: <https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Automattic/wp-admin-bar-overflow/trunk/.wordpress-org/blueprints/blueprint.json> (Playground installs Query Monitor and Yoast SEO to give the dropdown something to do).
+
 ## Status
 
-This is **v0.1.0-alpha — early prototype, public-from-day-1.**
+This is **v0.1.0-alpha**, an early prototype published from day one.
 
 > ⚠️ **Temporary repository location.** This plugin is currently developed in `Automattic/wp-admin-bar-overflow` as a holding repo while the WordPress GitHub org coordination completes. The repository will move to `WordPress/wp-admin-bar-overflow` (or its final slug) before the v0.1.0 release. External links, release-zip URLs, and any sync automation will be updated as part of that move.
 
@@ -28,13 +30,13 @@ No release zips are published from this temporary location. The plugin is instal
 - **No core changes.** The plugin runs entirely as an admin-bar overlay. The original `$wp_admin_bar` state is unchanged; the runtime decorates the rendered DOM.
 - **Performance.** Runtime JS ≤ 8 KB gzipped, runtime CSS ≤ 4 KB gzipped (CI gate). Plain ES modules, no build step, no React, no `@wordpress/*` runtime dependencies. The classifier short-circuits when the enablement filter returns false, so non-opted-in users see no overhead beyond a sub-millisecond filter check.
 
-For the architectural details — `/src/` layout, file responsibilities, contracts — see [`docs/architecture.md`](docs/architecture.md) (added in a follow-up PR).
+For the architectural details (`/src/` layout, file responsibilities, contracts), see [`docs/architecture.md`](docs/architecture.md).
 
-For host-adapter authors: [`docs/host-extension-api.md`](docs/host-extension-api.md) (added in a follow-up PR) documents the filter API with worked examples.
+For host-adapter authors: [`docs/host-extension-api.md`](docs/host-extension-api.md) documents the filter API with worked examples.
 
 ## Related work
 
-The sibling [`WordPress/wp-admin-sidebar`](https://github.com/WordPress/wp-admin-sidebar) project applies the same shape — public-from-day-1, classifier-driven, host-adapter API — to the wp-admin left navigation. The two plugins operate on different surfaces (`#adminmenu` vs `#wpadminbar`) and can be installed on the same site without conflict.
+The sibling [`WordPress/wp-admin-sidebar`](https://github.com/WordPress/wp-admin-sidebar) project applies the same shape (public-from-day-1, classifier-driven, host-adapter API) to the wp-admin left navigation. The two plugins operate on different surfaces (`#adminmenu` vs `#wpadminbar`) and can be installed on the same site without conflict.
 
 ## Contributing
 

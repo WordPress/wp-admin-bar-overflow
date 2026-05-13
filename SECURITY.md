@@ -4,9 +4,9 @@
 
 Please report security issues privately, **not** as a public GitHub Issue.
 
-**Preferred channel:** [GitHub Security Advisories](https://github.com/Automattic/wp-admin-bar-overflow/security/advisories/new) — opens a private discussion thread with the maintainers.
+**Preferred channel:** [GitHub Security Advisories](https://github.com/Automattic/wp-admin-bar-overflow/security/advisories/new); opens a private discussion thread with the maintainers.
 
-**Backup channel:** email `security@automattic.com` with the subject line `WP Admin Bar Overflow — security report`. The Automattic security team triages and forwards to this project's maintainers.
+**Backup channel:** email `security@automattic.com` with the subject line `WP Admin Bar Overflow security report`. The Automattic security team triages and forwards to this project's maintainers.
 
 ## What to include
 
