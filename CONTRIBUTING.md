@@ -70,7 +70,7 @@ By submitting a contribution you license it under GPL-2.0-or-later. We don't req
 
 ## Host-adapter authoring
 
-If you maintain a managed-WordPress host or a multi-site network and want to customise classification, priority, or trigger placement (for example, prepending host-specific right-side IDs to the trigger's insertion target), you don't need to fork or modify this plugin. Read [`docs/host-extension-api.md`](docs/host-extension-api.md) (added in a follow-up PR) — it documents the filter API and shows worked examples.
+If you maintain a managed-WordPress host or a multi-site network and want to customise classification, priority, or trigger placement (for example, prepending host-specific right-side IDs to the trigger's insertion target), you don't need to fork or modify this plugin. Read [`docs/host-extension-api.md`](docs/host-extension-api.md); it documents the filter API and shows worked examples.
 
 ## Maintainers
 
