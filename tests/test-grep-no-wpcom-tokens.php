@@ -51,9 +51,9 @@ $host_system_tokens = array(
 // the public-plugin default.
 //
 // Patterns:
-//   (A) quoted id literals (single or double quote)
-//   (B) full `wp-admin-bar-<id>` prefix form (single or double quote)
-//   (C) id literal as the right-hand side of a PHP variable assignment
+// (A) quoted id literals (single or double quote)
+// (B) full `wp-admin-bar-<id>` prefix form (single or double quote)
+// (C) id literal as the right-hand side of a PHP variable assignment
 $host_node_id_patterns = array(
 	"/['\"](?:notes|help-center|reader|cart)['\"]/",
 	"/['\"]wp-admin-bar-(?:notes|help-center|reader|cart)['\"]/",

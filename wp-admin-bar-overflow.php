@@ -18,22 +18,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// ─── Constants ─────────────────────────────────────────────────────────────
+// Constants.
 define( 'WP_ADMIN_BAR_OVERFLOW_VERSION', '0.1.0-alpha' );
 define( 'WP_ADMIN_BAR_OVERFLOW_FILE', __FILE__ );
 define( 'WP_ADMIN_BAR_OVERFLOW_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WP_ADMIN_BAR_OVERFLOW_URL', plugin_dir_url( __FILE__ ) );
 
-// ─── Mid-deploy / partial-load safety ──────────────────────────────────────
 // Verify all required files are present before requiring them. Defensive
-// against rsync-style deploys where files land in non-deterministic order
-// (so this top-level bootstrap can briefly be live before its required
-// /src/ companions arrive). Cheap to do; protects against fatal mid-deploy.
-//
-// The required-files list is empty in this initial scaffold and is populated
-// as the classifier, registry, data planner, and storage layer land in
-// subsequent PRs.
-$wp_admin_bar_overflow_required_files = array();
+// against rsync-style deploys where files land in non-deterministic order, so
+// this top-level bootstrap can briefly be live before its required /src/
+// companions arrive. Cheap to do; protects against fatal mid-deploy.
+$wp_admin_bar_overflow_required_files = array(
+	__DIR__ . '/src/interface-admin-bar-overflow-storage.php',
+	__DIR__ . '/src/class-admin-bar-overflow-user-meta-storage.php',
+	__DIR__ . '/src/registry.php',
+	__DIR__ . '/src/class-admin-bar-overflow-classifier.php',
+	__DIR__ . '/src/class-admin-bar-overflow-data-planner.php',
+);
 foreach ( $wp_admin_bar_overflow_required_files as $wp_admin_bar_overflow_required_file ) {
 	if ( ! file_exists( $wp_admin_bar_overflow_required_file ) ) {
 		unset( $wp_admin_bar_overflow_required_files, $wp_admin_bar_overflow_required_file );
@@ -45,21 +46,25 @@ if ( isset( $wp_admin_bar_overflow_required_file ) ) {
 	unset( $wp_admin_bar_overflow_required_file );
 }
 
-// ─── Default enablement gate ───────────────────────────────────────────────
+require_once __DIR__ . '/src/interface-admin-bar-overflow-storage.php';
+require_once __DIR__ . '/src/class-admin-bar-overflow-user-meta-storage.php';
+require_once __DIR__ . '/src/registry.php';
+require_once __DIR__ . '/src/class-admin-bar-overflow-classifier.php';
+require_once __DIR__ . '/src/class-admin-bar-overflow-data-planner.php';
+
+// Default enablement gate.
 //
-// Default predicate on plain WordPress: enabled for any logged-in user. The
-// install IS the opt-in signal — activating the plugin enables the redesign
-// for everyone on the site. Hosts that need finer control (per-blog, per-user,
-// percentage rollout) override by binding the `wp_admin_bar_overflow_enabled`
-// filter from a host adapter.
+// On plain WordPress, activating the plugin IS the opt-in signal: the filter
+// returns true for any logged-in user. Hosts that need finer control
+// (per-blog, per-user, percentage rollout) override via a host adapter.
 //
 // Two control levers ship in-tree for development convenience:
 //
-//   define( 'WP_ADMIN_BAR_OVERFLOW_FORCE_DISABLED', true );  // kill switch
-//   define( 'WP_ADMIN_BAR_OVERFLOW_FORCE_ENABLED',  true );  // bypass gate
+// define( 'WP_ADMIN_BAR_OVERFLOW_FORCE_DISABLED', true ); // kill switch
+// define( 'WP_ADMIN_BAR_OVERFLOW_FORCE_ENABLED',  true ); // bypass gate
 //
-// Both levers short-circuit at the start of the filter chain so they win over
-// any host-adapter binding.
+// Both short-circuit at the start of the filter chain so they win over any
+// host-adapter binding.
 add_filter(
 	'wp_admin_bar_overflow_enabled',
 	static function ( $enabled, $user_id ) {
@@ -69,21 +74,30 @@ add_filter(
 		if ( defined( 'WP_ADMIN_BAR_OVERFLOW_FORCE_ENABLED' ) && WP_ADMIN_BAR_OVERFLOW_FORCE_ENABLED ) {
 			return true;
 		}
-		// Logged-in users get the overflow behaviour; logged-out / cron / cli
-		// requests do not. The admin bar itself only renders for logged-in
-		// users, so this is belt-and-braces.
 		return (bool) $user_id;
 	},
 	10,
 	2
 );
 
-// ─── Deactivation cleanup ──────────────────────────────────────────────────
+// Hook the data pipeline.
+//
+// Priority 10: classifier reads `$wp_admin_bar->get_nodes()` after every
+// `admin_bar_menu` callback has fired (including PHP_INT_MAX-priority
+// registrations) and builds the cached nav model.
+//
+// Priority PHP_INT_MAX - 1: data planner emits the cached nav model as
+// `<script type="application/json" id="wp-admin-bar-overflow-data">`. Late
+// priority leaves room for renderers / late mutators on the same hook.
+add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Classifier::class, 'read_and_classify' ), 10 );
+add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Data_Planner::class, 'emit' ), PHP_INT_MAX - 1 );
+
+// Deactivation cleanup.
 //
 // Data-preserving deactivation: nothing to clean up at v0.1.x (the plugin is
-// read-only — no user state is persisted). The hook is registered so future
-// versions that add storage can clean up here, with a deprecation cycle if the
-// cleanup behaviour ever needs to change.
+// read-only; no user state persisted). The hook is registered so future
+// versions that add storage can clean up here, with a deprecation cycle if
+// the cleanup behaviour ever needs to change.
 register_deactivation_hook(
 	WP_ADMIN_BAR_OVERFLOW_FILE,
 	static function () {
