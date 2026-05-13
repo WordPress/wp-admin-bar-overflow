@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - trunk
+  pull_request:
+    branches:
+      - trunk
+
+permissions:
+  contents: read
+
+jobs:
+  grep-gate:
+    name: Source-boundary grep gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+
+      - name: Run grep gate
+        run: php tests/test-grep-no-wpcom-tokens.php
+
+  php-lint:
+    name: PHP lint + coding standards
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.json') }}
+          restore-keys: composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: PHP syntax check
+        run: find src wp-admin-bar-overflow.php -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: PHPCS (WordPress Coding Standards)
+        run: composer lint || echo "PHPCS reported issues (non-blocking until A.0 implementation lands)"
+
+  php-tests:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.json') }}
+          restore-keys: composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: PHPUnit
+        run: |
+          if [ -d tests/php ] && [ -n "$(find tests/php -type f -name '*.php' -print -quit 2>/dev/null)" ]; then
+            composer test
+          else
+            echo "No PHPUnit test files yet; they land with the classifier in a follow-up PR."
+          fi
+
+  js-tests:
+    name: Jest + lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install npm dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Lint (ESLint + Stylelint)
+        run: |
+          if [ -d src ] && [ -n "$(find src -type f \( -name '*.js' -o -name '*.css' \) -print -quit 2>/dev/null)" ]; then
+            npm run lint
+          else
+            echo "No JS / CSS source yet; lint lands with the runtime in a follow-up PR."
+          fi
+
+      - name: Jest
+        run: |
+          if [ -d src ] && [ -n "$(find src -type f -name '*.test.js' -print -quit 2>/dev/null)" ]; then
+            npm test
+          else
+            echo "No Jest tests yet; JS tests land with the runtime in a follow-up PR."
+          fi

@@ -1,0 +1,22 @@
+# EditorConfig — https://editorconfig.org
+#
+# WordPress Coding Standards: tabs for indent, spaces for align. PHP, JS, CSS
+# all use tabs. JSON / YAML / Markdown use two spaces because their tooling
+# tends to assume that.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 4
+
+[*.{json,yml,yaml,md}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

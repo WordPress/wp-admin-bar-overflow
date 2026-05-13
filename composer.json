@@ -1,0 +1,29 @@
+{
+	"name": "automattic/wp-admin-bar-overflow",
+	"description": "Responsive overflow for plugin-added WordPress admin-bar nodes.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"homepage": "https://github.com/Automattic/wp-admin-bar-overflow",
+	"require": {
+		"php": ">=8.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^9.6",
+		"wp-coding-standards/wpcs": "^3.0",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1"
+	},
+	"scripts": {
+		"test": "phpunit",
+		"test:grep": "php tests/test-grep-no-wpcom-tokens.php",
+		"lint": "phpcs",
+		"lint:fix": "phpcbf"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"minimum-stability": "stable",
+	"prefer-stable": true
+}

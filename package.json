@@ -1,0 +1,29 @@
+{
+	"name": "wp-admin-bar-overflow",
+	"version": "0.1.0-alpha",
+	"description": "Responsive overflow for plugin-added WordPress admin-bar nodes.",
+	"private": true,
+	"license": "GPL-2.0-or-later",
+	"homepage": "https://github.com/Automattic/wp-admin-bar-overflow",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/wp-admin-bar-overflow.git"
+	},
+	"scripts": {
+		"test": "jest",
+		"lint": "npm run lint:js && npm run lint:css",
+		"lint:js": "eslint 'src/**/*.js'",
+		"lint:css": "stylelint 'src/**/*.css'"
+	},
+	"devDependencies": {
+		"@types/jest": "^29.5.12",
+		"eslint": "^8.57.0",
+		"jest": "^29.7.0",
+		"jest-environment-jsdom": "^29.7.0",
+		"stylelint": "^16.0.0",
+		"stylelint-config-standard": "^36.0.0"
+	},
+	"engines": {
+		"node": ">=18"
+	}
+}

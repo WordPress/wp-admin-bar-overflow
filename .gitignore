@@ -1,0 +1,25 @@
+# Composer
+/vendor/
+composer.phar
+
+# Node
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artefacts (none yet; we ship plain ES modules)
+/build/
+/dist/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test artefacts
+/.phpunit.result.cache
+/.phpcs-cache
+/coverage/
