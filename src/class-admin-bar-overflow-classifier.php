@@ -155,6 +155,15 @@ class Admin_Bar_Overflow_Classifier {
 			return null;
 		}
 
+		// Skip group containers — they are not user-facing nodes. Core
+		// registers `top-secondary` (and friends) via `add_group()` with
+		// `group = true`; classifying them would (a) inflate plugin counts
+		// and (b) cause the runtime to add the hide class to the entire
+		// right-side group container at ≤ 782px.
+		if ( isset( $node->group ) && $node->group ) {
+			return null;
+		}
+
 		$parent = isset( $node->parent ) ? (string) $node->parent : '';
 		if ( '' !== $parent && 'top-secondary' !== $parent ) {
 			return null;

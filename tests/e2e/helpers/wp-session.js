@@ -15,6 +15,7 @@
 const BASE_URL = process.env.E2E_BASE_URL || '';
 const USER = process.env.E2E_USER || 'wordpress';
 const PASS = process.env.E2E_PASS || 'wordpress';
+const AUTO_LOGIN_URL = process.env.E2E_AUTO_LOGIN || '';
 const DEBUG_ENABLED = process.env.E2E_DEBUG === '1';
 
 function baseUrl() {
@@ -22,10 +23,20 @@ function baseUrl() {
 }
 
 function isConfigured() {
-	return BASE_URL !== '';
+	return BASE_URL !== '' || AUTO_LOGIN_URL !== '';
 }
 
 async function loginToWp(page) {
+	if (AUTO_LOGIN_URL) {
+		// JN's companion plugin auto-logs-in the `demo` user when the
+		// `auto_login` query param is present and `auto_login` option is 1.
+		// The redirect chain typically lands on the site root; a follow-up
+		// navigation to /wp-admin/ then hits the dashboard with the auth
+		// cookie attached.
+		await page.goto(AUTO_LOGIN_URL, { waitUntil: 'networkidle' });
+		await page.goto(`${baseUrl()}/wp-admin/`, { waitUntil: 'domcontentloaded' });
+		return;
+	}
 	await page.goto(`${baseUrl()}/wp-login.php`);
 	await page.fill('#user_login', USER);
 	await page.fill('#user_pass', PASS);

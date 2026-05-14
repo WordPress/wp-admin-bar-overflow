@@ -385,6 +385,32 @@ final class Admin_Bar_Overflow_Classifier_Test extends TestCase {
 		);
 	}
 
+	// ─── Group filter ─────────────────────────────────────────────────────
+
+	public function test_classifier_skips_group_container_nodes(): void {
+		// Core registers `top-secondary` via `add_group()`; classifying it
+		// would mark the whole right-side container as a plugin node and
+		// hide the trigger itself at ≤ 782px.
+		$this->bar()->add_node(
+			array(
+				'id'    => 'top-secondary',
+				'group' => true,
+			)
+		);
+		$this->bar()->add_node(
+			array(
+				'id'    => 'wp-logo',
+				'title' => 'WP',
+			)
+		);
+
+		Admin_Bar_Overflow_Classifier::read_and_classify();
+		$ids = array_column( Admin_Bar_Overflow_Classifier::get_nav_model()['nodes'], 'rawId' );
+
+		$this->assertContains( 'wp-logo', $ids );
+		$this->assertNotContains( 'top-secondary', $ids );
+	}
+
 	// ─── Scope filter ─────────────────────────────────────────────────────
 
 	public function test_classifier_ignores_nodes_outside_scope(): void {

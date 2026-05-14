@@ -31,6 +31,15 @@ ZIP_PATH="${DIST_DIR}/${PLUGIN_SLUG}-v${VERSION}.zip"
 rm -rf "${STAGE_DIR}" "${ZIP_PATH}"
 mkdir -p "${STAGE_DIR}"
 
+# Build the runtime bundle first so the dist directory is fresh. The
+# renderer's `emit_runtime_{css,js}` reads from dist/ at request time;
+# shipping a zip without dist/ leaves the plugin functional as a PHP-only
+# trigger registrar but with no runtime behaviour. Skip when node is
+# unavailable (best-effort).
+if command -v npm >/dev/null 2>&1; then
+	( cd "${ROOT_DIR}" && npm run build >/dev/null 2>&1 ) || true
+fi
+
 # Files and directories that ship in the distributable. Everything else
 # (tests/, .github/, composer files, dev configs) stays out of the zip so the
 # user-installed plugin is the runtime surface only.
@@ -38,6 +47,11 @@ cp "${ROOT_DIR}/${PLUGIN_SLUG}.php" "${STAGE_DIR}/"
 cp "${ROOT_DIR}/LICENSE" "${STAGE_DIR}/"
 cp "${ROOT_DIR}/README.md" "${STAGE_DIR}/"
 cp -R "${ROOT_DIR}/src" "${STAGE_DIR}/src"
+if [ -d "${ROOT_DIR}/dist" ] && [ -f "${ROOT_DIR}/dist/runtime.js" ]; then
+	mkdir -p "${STAGE_DIR}/dist"
+	cp "${ROOT_DIR}/dist/runtime.js" "${STAGE_DIR}/dist/"
+	cp "${ROOT_DIR}/dist/runtime.css" "${STAGE_DIR}/dist/"
+fi
 
 # Optionally include a readme.txt when present (wp.org-style readme).
 if [ -f "${ROOT_DIR}/readme.txt" ]; then
