@@ -100,6 +100,7 @@ class Admin_Bar_Overflow_Classifier {
 			),
 			'flags'       => array(
 				'prefersReducedMotion' => false,
+				'debug'                => defined( 'WP_ADMIN_BAR_OVERFLOW_DEBUG' ) && constant( 'WP_ADMIN_BAR_OVERFLOW_DEBUG' ),
 			),
 		);
 	}
