@@ -12,6 +12,11 @@ yarn-error.log*
 /build/
 /dist/
 
+# Playwright artefacts
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
 # IDE / OS
 .DS_Store
 .idea/

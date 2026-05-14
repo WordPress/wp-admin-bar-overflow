@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Trigger closed — axe fixture</title>
+	<style>
+		body { margin: 0; font: 13px/1 sans-serif; background: #f0f0f1; color: #1d2327; }
+		main { padding: 64px 16px; max-width: 720px; margin: 0 auto; }
+		main h1 { font-size: 16px; margin: 0 0 8px; }
+		#wpadminbar { position: fixed; top: 0; left: 0; right: 0; height: 32px; background: #1d2327; color: #fff; }
+		#wp-toolbar { display: flex; flex-direction: row-reverse; height: 32px; }
+		#wpadminbar ul { list-style: none; margin: 0; padding: 0; display: flex; }
+		#wpadminbar li { position: relative; }
+		#wpadminbar .ab-item { color: #fff; display: inline-flex; align-items: center; padding: 0 12px; height: 32px; text-decoration: none; }
+		#wpadminbar .ab-item:focus { outline: 2px solid #4f94d4; outline-offset: -2px; }
+		#wpadminbar .ab-sub-wrapper { display: none; position: absolute; top: 32px; right: 0; min-width: 220px; background: #2c3338; }
+		#wpadminbar .menupop.hover > .ab-sub-wrapper { display: block; }
+		#wpadminbar .ab-submenu .ab-item { display: block; height: auto; padding: 8px 12px; color: #fff; }
+		#wpadminbar .ab-empty-item { padding: 0 12px; color: #fff; }
+		.wp-admin-bar-overflow-placeholder { display: none; }
+	</style>
+</head>
+<body>
+<div id="wpadminbar" role="navigation" aria-label="Toolbar">
+	<div id="wp-toolbar" role="menubar" aria-label="Top Toolbar">
+		<ul id="wp-admin-bar-top-secondary" class="ab-top-secondary ab-top-menu" role="none">
+			<li id="wp-admin-bar-overflow-plugins" class="menupop wp-admin-bar-overflow-trigger" role="none">
+				<a class="ab-item" href="#" onclick="return false;" role="menuitem" aria-expanded="false" aria-haspopup="menu">
+					<span class="ab-icon" aria-hidden="true"></span>
+					<span class="ab-label">Plugins</span>
+				</a>
+				<div class="ab-sub-wrapper" role="none">
+					<ul id="wp-admin-bar-overflow-plugins-default" class="ab-submenu" role="menu" aria-label="Plugins overflow">
+						<li id="wp-admin-bar-overflow-placeholder" class="wp-admin-bar-overflow-placeholder" role="none">
+							<div class="ab-item ab-empty-item" aria-hidden="true"></div>
+						</li>
+					</ul>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>
+<main>
+	<h1>Trigger closed state</h1>
+	<p>Static fixture used by the axe-core trigger-fixture smoke gate (item 7 of the A.1 entry checkpoint).</p>
+</main>
+</body>
+</html>
