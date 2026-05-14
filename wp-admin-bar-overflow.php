@@ -34,6 +34,7 @@ $wp_admin_bar_overflow_required_files = array(
 	__DIR__ . '/src/registry.php',
 	__DIR__ . '/src/class-admin-bar-overflow-classifier.php',
 	__DIR__ . '/src/class-admin-bar-overflow-data-planner.php',
+	__DIR__ . '/src/class-admin-bar-overflow-renderer.php',
 );
 foreach ( $wp_admin_bar_overflow_required_files as $wp_admin_bar_overflow_required_file ) {
 	if ( ! file_exists( $wp_admin_bar_overflow_required_file ) ) {
@@ -51,6 +52,7 @@ require_once __DIR__ . '/src/class-admin-bar-overflow-user-meta-storage.php';
 require_once __DIR__ . '/src/registry.php';
 require_once __DIR__ . '/src/class-admin-bar-overflow-classifier.php';
 require_once __DIR__ . '/src/class-admin-bar-overflow-data-planner.php';
+require_once __DIR__ . '/src/class-admin-bar-overflow-renderer.php';
 
 // Default enablement gate.
 //
@@ -90,6 +92,11 @@ add_filter(
 // `<script type="application/json" id="wp-admin-bar-overflow-data">`. Late
 // priority leaves room for renderers / late mutators on the same hook.
 add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Classifier::class, 'read_and_classify' ), 10 );
+// Priority 20: renderer registers the right-side trigger + placeholder shell
+// + inline placeholder-hide CSS + reorder closure. Runs after the classifier
+// has populated the cached nav model; no-op when no plugin nodes were
+// classified on this request.
+add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Renderer::class, 'register' ), 20 );
 add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Data_Planner::class, 'emit' ), PHP_INT_MAX - 1 );
 
 // Deactivation cleanup.
