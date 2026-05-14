@@ -37,7 +37,8 @@
 
 /* Runtime hide for nodes the ResizeObserver decided do not fit at narrow
  * desktop (783-1279px). The mirror inside the dropdown is the only visible
- * occurrence while the class is present. */
-#wpadminbar .wp-admin-bar-overflow-hidden-by-overflow {
-	display: none;
+ * occurrence while the class is present. `!important` wins over the
+ * id-scoped `display` rules many plugins inline (see responsive.css). */
+#wpadminbar li.wp-admin-bar-overflow-hidden-by-overflow {
+	display: none !important;
 }

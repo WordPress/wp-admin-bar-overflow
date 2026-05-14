@@ -11,7 +11,40 @@
  */
 
 @media (max-width: 782px) {
-	#wpadminbar .wp-admin-bar-overflow-classified-plugin-node {
+	/* Many plugins (e.g. Yoast SEO) inline an id-scoped
+	 * `#wpadminbar #wp-admin-bar-<id> { display: ... }` rule that beats
+	 * a class-scoped `display: none`. Add `!important` so the hide rule
+	 * wins regardless of plugin specificity. */
+	#wpadminbar li.wp-admin-bar-overflow-classified-plugin-node {
+		display: none !important;
+	}
+
+	/* Core's admin-bar mobile stylesheet hides every `top-secondary > li`
+	 * at this band and only explicitly re-enables a closed set
+	 * (`my-account`, `search`, …). Re-enable our trigger so the dropdown
+	 * stays reachable on mobile. */
+	#wpadminbar #wp-admin-bar-top-secondary > #wp-admin-bar-overflow-plugins {
+		display: block !important;
+	}
+}
+
+@media (min-width: 783px) and (max-width: 1279px) {
+	/* Narrow desktop: each mirror starts hidden; the runtime adds
+	 * `wp-admin-bar-overflow-mirror-shown` to the mirror whose original
+	 * overflows. Visible mirrors override the default `display: none`. */
+	#wpadminbar .wp-admin-bar-overflow-mirror {
+		display: none;
+	}
+
+	#wpadminbar .wp-admin-bar-overflow-mirror.wp-admin-bar-overflow-mirror-shown {
+		display: block;
+	}
+}
+
+@media (min-width: 1280px) {
+	/* Wide desktop: every plugin original fits inline; no mirroring
+	 * needed, so hide the dropdown trigger itself. */
+	#wpadminbar #wp-admin-bar-overflow-plugins {
 		display: none;
 	}
 }
