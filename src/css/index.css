@@ -3,6 +3,6 @@
  * The actual rules land in their respective files in a follow-up commit.
  */
 
-@import './dropdown.css';
-@import './responsive.css';
-@import './icons.css';
+@import url('./dropdown.css');
+@import url('./responsive.css');
+@import url('./icons.css');

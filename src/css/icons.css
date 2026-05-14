@@ -1,1 +1,18 @@
-/* Dropdown trigger icon. Stub until the CSS-bundle task lands. */
+/*
+ * Dropdown trigger icon.
+ *
+ * Provisional: Core's dashicon "admin-plugins" glyph. The admin bar enqueues
+ * dashicons in both admin and front-end contexts, so the glyph is available
+ * wherever the trigger renders. Once the Figma source-gap bundle resolves
+ * (Joen's design comment), swap this for the chosen `@wordpress/icons` SVG.
+ */
+
+#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item::before {
+	font: 400 20px/1 dashicons, sans-serif;
+	content: "\f106";
+	speak: never;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	vertical-align: middle;
+	margin-top: 6px;
+}

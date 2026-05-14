@@ -1,1 +1,36 @@
-/* Dropdown visual treatment. Stub until the CSS-bundle task lands. */
+/*
+ * Plugins dropdown trigger + submenu shell.
+ *
+ * Layers on Core's `WP_Admin_Bar` rendering. Most visual treatment comes
+ * from Core's existing admin-bar CSS; this sheet adds the plugin-specific
+ * tweaks (trigger affordance, mirror-item spacing, placeholder hide-fallback).
+ */
+
+#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
+	min-width: 36px;
+	text-align: center;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item .wp-admin-bar-overflow-trigger-label {
+	margin-left: 6px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins.menupop > .ab-sub-wrapper {
+	min-width: 220px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu .wp-admin-bar-overflow-mirror > .ab-item {
+	white-space: nowrap;
+}
+
+#wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-admin-bar-overflow-mirror-label {
+	margin-left: 6px;
+}
+
+/* Placeholder hide fallback — the renderer also emits an inline rule so the
+ * placeholder is hidden before the bundle loads. This selector mirrors that
+ * rule so themes that ship a stricter CSP and block inline styles still
+ * hide the placeholder. */
+#wpadminbar .wp-admin-bar-overflow-placeholder {
+	display: none;
+}
