@@ -25,6 +25,9 @@
  *
  * Mirrors are appended in the nav-model's priority order; the classifier
  * is the single source of truth for that order.
+ *
+ * `mutation-sync.js` reuses `buildMirror()` to refresh a mirror in place
+ * when its original mutates (text / class / aria changes).
  */
 
 const PLACEHOLDER_GROUP_HTML_ID = 'wp-admin-bar-overflow-plugins-default';
@@ -38,6 +41,8 @@ const RUNTIME_HIDE_CLASSES = [
 	'wp-admin-bar-overflow-hidden-by-overflow',
 ];
 
+let pluginEntriesByNodeId = null;
+
 export function setupMirror(bar, navModel) {
 	const group = document.getElementById(PLACEHOLDER_GROUP_HTML_ID);
 	if (!group) return;
@@ -47,18 +52,14 @@ export function setupMirror(bar, navModel) {
 	);
 	if (pluginEntries.length === 0) return;
 
+	pluginEntriesByNodeId = new Map(pluginEntries.map((entry) => [entry.nodeId, entry]));
+
 	const fragment = document.createDocumentFragment();
 	let injected = 0;
 	for (const entry of pluginEntries) {
 		const original = document.getElementById(entry.nodeId);
 		if (!original) continue;
-
-		const clone = original.cloneNode(true);
-		rewriteIdsAndMarkMirror(clone);
-		stripRuntimeHideClasses(clone);
-		clone.classList.add(MIRROR_CLASS);
-		applyIconOnlyLabelTreatment(clone, entry);
-
+		const clone = buildMirror(original, entry);
 		fragment.appendChild(clone);
 		injected += 1;
 	}
@@ -70,6 +71,30 @@ export function setupMirror(bar, navModel) {
 		placeholder.parentNode.removeChild(placeholder);
 	}
 	group.appendChild(fragment);
+}
+
+/**
+ * Look up the nav-model entry for an original id. Returns null when the
+ * original is not in the plugin set (e.g., the mutation observer caught a
+ * Core-node change). Reused by mutation-sync's refresh path.
+ */
+export function getPluginEntry(originalNodeId) {
+	if (!pluginEntriesByNodeId) return null;
+	return pluginEntriesByNodeId.get(originalNodeId) || null;
+}
+
+/**
+ * Build a mirror element from the original. Used by `setupMirror` on first
+ * paint and by `mutation-sync.js` when re-cloning a mirror after the
+ * original mutates. The returned element is not yet in the DOM.
+ */
+export function buildMirror(original, entry) {
+	const clone = original.cloneNode(true);
+	rewriteIdsAndMarkMirror(clone);
+	stripRuntimeHideClasses(clone);
+	clone.classList.add(MIRROR_CLASS);
+	applyIconOnlyLabelTreatment(clone, entry);
+	return clone;
 }
 
 function rewriteIdsAndMarkMirror(clone) {
@@ -99,14 +124,24 @@ function applyIconOnlyLabelTreatment(clone, entry) {
 	const anchor = clone.querySelector(':scope > a.ab-item, :scope > div.ab-item');
 	if (!anchor) return;
 
-	const existingLabel = anchor.querySelector('.ab-label');
-	if (existingLabel) {
-		if (existingLabel.classList.contains('screen-reader-text')) {
-			existingLabel.classList.remove('screen-reader-text');
-			existingLabel.classList.add(MIRROR_LABEL_CLASS);
-		}
+	const labels = Array.from(anchor.querySelectorAll('.ab-label'));
+	const visibleLabel = labels.find((l) => !l.classList.contains('screen-reader-text'));
+	if (visibleLabel) return;
+
+	const srOnlyLabel = labels.find((l) => l.classList.contains('screen-reader-text'));
+	if (srOnlyLabel) {
+		srOnlyLabel.classList.remove('screen-reader-text');
+		srOnlyLabel.classList.add(MIRROR_LABEL_CLASS);
 		return;
 	}
+
+	// No `.ab-label` at all. If the anchor already carries any text
+	// content (direct or in nested spans / divs), trust the plugin's
+	// rendering and leave it alone. Truly icon-only anchors (with the
+	// glyph as a background image or pure-SVG) have an empty
+	// `textContent` and pick up the canonical label here.
+	const fullText = anchor.textContent.replace(/\s+/g, ' ').trim();
+	if (fullText) return;
 
 	const canonical = entry && entry.labels && entry.labels.canonical;
 	if (!canonical) return;
