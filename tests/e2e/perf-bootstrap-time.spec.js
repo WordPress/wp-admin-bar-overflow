@@ -16,8 +16,13 @@ const { test, expect } = require('@playwright/test');
 const { loginToWp } = require('./helpers/wp-session');
 
 const F3_URL = process.env.E2E_BASE_URL_F3 || '';
+const F1_URL = process.env.E2E_BASE_URL || '';
 
 test.skip(!F3_URL, 'E2E_BASE_URL_F3 is not set; bare-WP fixture unavailable');
+test.skip(
+	F3_URL && F1_URL && F3_URL === F1_URL,
+	'E2E_BASE_URL_F3 == E2E_BASE_URL; F1 has plugin nodes, cannot measure F3 idle on the same site'
+);
 
 test('bootstrap on F3 finishes within 0.5 ms', async ({ page }) => {
 	// Reuse the WP login helper but against the F3 site.
