@@ -24,8 +24,16 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const JS_BUDGET_BYTES = 8 * 1024;
 const CSS_BUDGET_BYTES = 4 * 1024;
+const FORBIDDEN_PACKAGES = [
+	'react',
+	'react-dom',
+	'preact',
+	'@wordpress/components',
+	'@wordpress/data',
+	'@wordpress/element',
+];
 
-await build({
+const jsResult = await build({
 	entryPoints: [resolve(ROOT, 'src/js/index.js')],
 	bundle: true,
 	format: 'iife',
@@ -34,6 +42,7 @@ await build({
 	outfile: resolve(ROOT, 'dist/runtime.js'),
 	legalComments: 'none',
 	logLevel: 'warning',
+	metafile: true,
 });
 
 await build({
@@ -66,8 +75,28 @@ if (process.argv.includes('--check-size')) {
 		console.error(`FAIL: CSS bundle ${cssGz} B > ${CSS_BUDGET_BYTES} B gzipped`);
 		failed = true;
 	}
+	// Decision 8 dependency gate: the runtime bundle must not pull in
+	// React, Preact, or `@wordpress/{components,data,element}`. esbuild's
+	// metafile lists every input file; we look for `node_modules/<pkg>/`
+	// segments. A forbidden segment fails the build.
+	const inputs = Object.keys(jsResult.metafile?.inputs || {});
+	const forbidden = [];
+	for (const input of inputs) {
+		for (const pkg of FORBIDDEN_PACKAGES) {
+			if (input.includes(`node_modules/${pkg}/`)) {
+				forbidden.push({ pkg, input });
+			}
+		}
+	}
+	if (forbidden.length > 0) {
+		for (const hit of forbidden) {
+			console.error(`FAIL: forbidden package "${hit.pkg}" in runtime chunk via ${hit.input}`);
+		}
+		failed = true;
+	}
+
 	if (failed) {
 		process.exit(1);
 	}
-	console.log('OK: bundles within Decision 8 byte budgets.');
+	console.log('OK: bundles within Decision 8 byte budgets + dependency gate.');
 }
