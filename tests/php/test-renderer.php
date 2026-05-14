@@ -163,6 +163,28 @@ final class Admin_Bar_Overflow_Renderer_Test extends TestCase {
 		$this->assertSame( '', $output );
 	}
 
+	// ─── Runtime JS emission ──────────────────────────────────────────────
+
+	public function test_emit_runtime_js_is_noop_when_classifier_did_not_run(): void {
+		ob_start();
+		Admin_Bar_Overflow_Renderer::emit_runtime_js();
+		$this->assertSame( '', (string) ob_get_clean() );
+	}
+
+	public function test_emit_runtime_js_is_noop_when_no_plugin_classified_nodes(): void {
+		$this->bar()->add_node(
+			array(
+				'id'    => 'wp-logo',
+				'title' => 'WP',
+			)
+		);
+		Admin_Bar_Overflow_Classifier::read_and_classify();
+
+		ob_start();
+		Admin_Bar_Overflow_Renderer::emit_runtime_js();
+		$this->assertSame( '', (string) ob_get_clean() );
+	}
+
 	// ─── Reorder closure ──────────────────────────────────────────────────
 
 	public function test_reorder_moves_trigger_before_my_account(): void {

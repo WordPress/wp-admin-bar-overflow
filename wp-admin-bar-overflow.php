@@ -98,6 +98,11 @@ add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Classifier::
 // classified on this request.
 add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Renderer::class, 'register' ), 20 );
 add_action( 'wp_before_admin_bar_render', array( Admin_Bar_Overflow_Data_Planner::class, 'emit' ), PHP_INT_MAX - 1 );
+// `wp_after_admin_bar_render` fires after `<div id="wpadminbar">…</div>` is
+// in the document, so the runtime JS can find the bar element immediately
+// on first execution. CSS goes inline before the bar (no FOUC); JS goes
+// inline after the bar (DOM is ready).
+add_action( 'wp_after_admin_bar_render', array( Admin_Bar_Overflow_Renderer::class, 'emit_runtime_js' ) );
 
 // Deactivation cleanup.
 //

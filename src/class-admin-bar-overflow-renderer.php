@@ -67,12 +67,14 @@ if ( class_exists( 'Admin_Bar_Overflow_Renderer' ) ) {
  */
 class Admin_Bar_Overflow_Renderer {
 
-	const TRIGGER_RAW_ID     = 'overflow-plugins';
-	const PLACEHOLDER_GROUP  = 'overflow-plugins-default';
-	const PLACEHOLDER_RAW_ID = 'overflow-placeholder';
-	const TRIGGER_CLASS      = 'wp-admin-bar-overflow-trigger';
-	const PLACEHOLDER_CLASS  = 'wp-admin-bar-overflow-placeholder';
-	const STYLE_ELEMENT_ID   = 'wp-admin-bar-overflow-runtime-style';
+	const TRIGGER_RAW_ID         = 'overflow-plugins';
+	const PLACEHOLDER_GROUP      = 'overflow-plugins-default';
+	const PLACEHOLDER_RAW_ID     = 'overflow-placeholder';
+	const TRIGGER_CLASS          = 'wp-admin-bar-overflow-trigger';
+	const PLACEHOLDER_CLASS      = 'wp-admin-bar-overflow-placeholder';
+	const STYLE_ELEMENT_ID       = 'wp-admin-bar-overflow-runtime-style';
+	const RUNTIME_CSS_ELEMENT_ID = 'wp-admin-bar-overflow-runtime-css';
+	const RUNTIME_JS_ELEMENT_ID  = 'wp-admin-bar-overflow-runtime-js';
 
 	/**
 	 * Register the trigger + placeholder, emit the inline placeholder-hide
@@ -139,12 +141,83 @@ class Admin_Bar_Overflow_Renderer {
 		// (d) Inline placeholder-hide style.
 		echo '<style id="' . esc_attr( self::STYLE_ELEMENT_ID ) . '">.' . esc_attr( self::PLACEHOLDER_CLASS ) . '{display:none}</style>' . "\n";
 
+		// (d') Inline runtime CSS bundle. Emitted alongside the placeholder
+		// rule so the dropdown trigger paints with its intended styling on
+		// first render. Skipped when the bundle is missing (pre-build
+		// development install).
+		self::emit_runtime_css();
+
 		// (e) Reorder closure.
 		$insert_before = (array) apply_filters(
 			'wp_admin_bar_overflow_trigger_insert_before_ids',
 			array( 'my-account' )
 		);
 		self::reorder_trigger_before( $wp_admin_bar, self::TRIGGER_RAW_ID, $insert_before );
+	}
+
+	/**
+	 * Emit the runtime JS bundle after the admin bar's HTML has been
+	 * rendered (so `#wpadminbar` is in the DOM). No-op when no plugin
+	 * nodes were classified on this request, or when the build artefact is
+	 * missing.
+	 *
+	 * Hooked at `wp_after_admin_bar_render` from the plugin bootstrap.
+	 */
+	public static function emit_runtime_js(): void {
+		$nav_model = Admin_Bar_Overflow_Classifier::get_nav_model();
+		if ( null === $nav_model ) {
+			return;
+		}
+		if ( ! self::has_plugin_node( $nav_model ) ) {
+			return;
+		}
+		$path = self::dist_path( 'runtime.js' );
+		if ( null === $path ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$js = file_get_contents( $path );
+		if ( false === $js || '' === $js ) {
+			return;
+		}
+		echo '<script id="' . esc_attr( self::RUNTIME_JS_ELEMENT_ID ) . '">';
+		// IIFE bundle output; safe to print verbatim — esbuild minified ASCII.
+		echo $js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo "</script>\n";
+	}
+
+	/**
+	 * Emit the runtime CSS bundle inline. Called from `register()` so the
+	 * CSS lands before `<div id="wpadminbar">` in the document output.
+	 */
+	private static function emit_runtime_css(): void {
+		$path = self::dist_path( 'runtime.css' );
+		if ( null === $path ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$css = file_get_contents( $path );
+		if ( false === $css || '' === $css ) {
+			return;
+		}
+		echo '<style id="' . esc_attr( self::RUNTIME_CSS_ELEMENT_ID ) . '">';
+		echo $css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo "</style>\n";
+	}
+
+	/**
+	 * Return the absolute path to a built asset under `dist/`, or null when
+	 * the file is missing. Resolves relative to the plugin root so the
+	 * function works both under the live plugin and in the test harness.
+	 *
+	 * @param string $name Asset filename (e.g., `runtime.js`).
+	 */
+	private static function dist_path( string $name ): ?string {
+		$base = defined( 'WP_ADMIN_BAR_OVERFLOW_DIR' )
+			? rtrim( constant( 'WP_ADMIN_BAR_OVERFLOW_DIR' ), '/\\' )
+			: dirname( __DIR__ );
+		$path = $base . '/dist/' . $name;
+		return file_exists( $path ) ? $path : null;
 	}
 
 	/**
