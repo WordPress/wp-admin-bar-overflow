@@ -73,6 +73,18 @@ if ( ! function_exists( 'esc_attr' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_html' ) ) {
+	/**
+	 * Test shim mirroring `esc_html` for text-node context.
+	 *
+	 * @param string $value Input value.
+	 * @return string Escaped HTML text.
+	 */
+	function esc_html( string $value ): string {
+		return htmlspecialchars( $value, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
 if ( ! function_exists( '__' ) ) {
 	/**
 	 * Test shim returning the input verbatim. The domain argument is ignored

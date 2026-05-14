@@ -16,6 +16,8 @@ import { existsSync } from 'node:fs';
 
 const autoLogin = process.env.E2E_AUTO_LOGIN;
 const zipPath = process.env.PLUGIN_ZIP;
+const user = process.env.E2E_USER || '';
+const pass = process.env.E2E_PASS || '';
 
 if (!autoLogin) {
 	console.error('E2E_AUTO_LOGIN env var is required');
@@ -37,7 +39,18 @@ page.on('console', (msg) => {
 
 console.log(`> Auto-login: ${autoLogin}`);
 await page.goto(autoLogin, { waitUntil: 'domcontentloaded' });
-await page.waitForURL(/wp-admin/, { timeout: 15000 });
+try {
+	await page.waitForURL(/wp-admin/, { timeout: 10000 });
+} catch (err) {
+	if (!user || !pass) {
+		throw err;
+	}
+	console.log('> Auto-login did not land in wp-admin, using password login...');
+	await page.goto(`${baseUrl}/wp-login.php`, { waitUntil: 'domcontentloaded' });
+	await page.fill('#user_login', user);
+	await page.fill('#user_pass', pass);
+	await Promise.all([page.waitForURL(/wp-admin/, { timeout: 15000 }), page.click('#wp-submit')]);
+}
 console.log(`> Logged in, now at: ${page.url()}`);
 
 console.log('> Navigating to plugin upload page...');
@@ -48,6 +61,17 @@ await page.setInputFiles('#pluginzip', zipPath);
 await page.click('#install-plugin-submit');
 await page.waitForLoadState('networkidle', { timeout: 60000 });
 
+const replaceHref = await page.evaluate(() => {
+	const link = Array.from(document.querySelectorAll('a, button')).find((el) =>
+		/Replace current with uploaded/i.test(el.textContent || '')
+	);
+	return link && link.tagName === 'A' ? link.href : null;
+});
+if (replaceHref) {
+	console.log(`> Replacing existing install via: ${replaceHref}`);
+	await page.goto(replaceHref, { waitUntil: 'networkidle' });
+}
+
 const activated = await page.evaluate(() => {
 	const link = Array.from(document.querySelectorAll('a')).find((a) => /Activate Plugin/i.test(a.textContent || ''));
 	return link ? link.href : null;
@@ -57,7 +81,7 @@ if (activated) {
 	console.log(`> Activating via: ${activated}`);
 	await page.goto(activated, { waitUntil: 'networkidle' });
 } else {
-	console.log('> "Activate Plugin" link not found — plugin may already be active or install failed.');
+	console.log('> "Activate Plugin" link not found, plugin may already be active or install failed.');
 }
 
 console.log('> Visiting /wp-admin/plugins.php for confirmation...');

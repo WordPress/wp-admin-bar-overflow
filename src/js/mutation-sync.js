@@ -23,6 +23,7 @@ import { trackObserverCreated, recordObserverCallback } from './debug.js';
 import { buildMirror, getPluginEntry } from './mirror.js';
 
 const MIRROR_PREFIX = 'wp-admin-bar-mirror-';
+const MIRROR_SHOWN_CLASS = 'wp-admin-bar-overflow-mirror-shown';
 
 let observer = null;
 
@@ -95,7 +96,11 @@ function refreshMirrors(originalIds) {
 		const existing = document.getElementById(existingMirrorId);
 		if (!existing || !existing.parentNode) continue;
 
+		const wasShown = existing.classList.contains(MIRROR_SHOWN_CLASS);
 		const fresh = buildMirror(original, entry);
+		if (wasShown) {
+			fresh.classList.add(MIRROR_SHOWN_CLASS);
+		}
 		existing.parentNode.replaceChild(fresh, existing);
 	}
 }

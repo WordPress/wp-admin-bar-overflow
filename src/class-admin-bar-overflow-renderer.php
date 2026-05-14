@@ -104,7 +104,7 @@ class Admin_Bar_Overflow_Renderer {
 		$wp_admin_bar->add_node(
 			array(
 				'id'     => self::TRIGGER_RAW_ID,
-				'title'  => $label,
+				'title'  => self::screen_reader_title( $label ),
 				'parent' => 'top-secondary',
 				'href'   => '#',
 				'meta'   => array(
@@ -153,6 +153,16 @@ class Admin_Bar_Overflow_Renderer {
 			array( 'my-account' )
 		);
 		self::reorder_trigger_before( $wp_admin_bar, self::TRIGGER_RAW_ID, $insert_before );
+	}
+
+	/**
+	 * Build the trigger title as accessible text without a visible label.
+	 *
+	 * @param string $label Visible name from the nav model.
+	 * @return string HTML fragment for the admin-bar node title.
+	 */
+	private static function screen_reader_title( string $label ): string {
+		return '<span class="screen-reader-text">' . esc_html( $label ) . '</span>';
 	}
 
 	/**

@@ -11,23 +11,62 @@
 	text-align: center;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item .wp-admin-bar-overflow-trigger-label {
-	margin-left: 6px;
+#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item .screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal !important;
 }
 
 #wpadminbar #wp-admin-bar-overflow-plugins.menupop > .ab-sub-wrapper {
 	min-width: 220px;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu .wp-admin-bar-overflow-mirror > .ab-item {
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item {
+	align-items: center;
+	box-sizing: border-box;
+	display: flex;
+	gap: 6px;
+	min-height: 36px;
 	white-space: nowrap;
+	width: 100%;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .ab-item,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .ab-icon,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > [id$="-ab-icon"] {
+	box-sizing: border-box;
+	flex: 0 0 20px;
+	height: 20px;
+	line-height: 20px;
+	margin: 0;
+	min-width: 20px;
+	padding: 0;
+	width: 20px;
 }
 
 #wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-admin-bar-overflow-mirror-label {
-	margin-left: 6px;
+	flex: 1 1 auto;
+	margin-left: 0;
+	min-width: 0;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
 }
 
-/* Placeholder hide fallback — the renderer also emits an inline rule so the
+#wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-ui-notification {
+	align-self: center;
+	flex: 0 0 auto;
+	margin-left: auto;
+}
+
+/* Placeholder hide fallback. The renderer also emits an inline rule so the
  * placeholder is hidden before the bundle loads. This selector mirrors that
  * rule so themes that ship a stricter CSP and block inline styles still
  * hide the placeholder. */

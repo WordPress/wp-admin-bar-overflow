@@ -14,10 +14,9 @@
  *   - Strip the runtime hide classes added by `overflow.js` so the
  *     mirror inside the dropdown stays visible regardless of viewport.
  *   - Apply Lucas's icon-only-node treatment per
- *     https://radicalupdates.wordpress.com/2026/05/11/allowing-plugins-on-every-screen-size-and-device-in-the-omnibar/#comment-2654 —
+ *     https://radicalupdates.wordpress.com/2026/05/11/allowing-plugins-on-every-screen-size-and-device-in-the-omnibar/#comment-2654:
  *     if the anchor has an icon and no visible label, inject one using
- *     the classifier's `labels.canonical`. If the label exists but is
- *     `screen-reader-text`-only, make it visible by dropping that class.
+ *     the classifier's `labels.canonical`.
  *
  * The placeholder child (`#wp-admin-bar-overflow-placeholder`) is
  * removed before the first real mirror lands so the dropdown only ever
@@ -36,6 +35,14 @@ const MIRROR_PREFIX = 'wp-admin-bar-mirror-';
 const ORIGINAL_PREFIX = 'wp-admin-bar-';
 const MIRROR_CLASS = 'wp-admin-bar-overflow-mirror';
 const MIRROR_LABEL_CLASS = 'wp-admin-bar-overflow-mirror-label';
+const NON_LABEL_TEXT_SELECTOR = [
+	'.screen-reader-text',
+	'.wp-ui-notification',
+	'.yoast-issue-counter',
+	'.yoast-issues-count',
+	'.ab-icon',
+	'[aria-hidden="true"]',
+].join(', ');
 const RUNTIME_HIDE_CLASSES = [
 	'wp-admin-bar-overflow-classified-plugin-node',
 	'wp-admin-bar-overflow-hidden-by-overflow',
@@ -141,29 +148,51 @@ function applyIconOnlyLabelTreatment(clone, entry) {
 	if (!anchor) return;
 
 	const labels = Array.from(anchor.querySelectorAll('.ab-label'));
-	const visibleLabel = labels.find((l) => !l.classList.contains('screen-reader-text'));
-	if (visibleLabel) return;
-
-	const srOnlyLabel = labels.find((l) => l.classList.contains('screen-reader-text'));
-	if (srOnlyLabel) {
-		srOnlyLabel.classList.remove('screen-reader-text');
-		srOnlyLabel.classList.add(MIRROR_LABEL_CLASS);
-		return;
-	}
-
-	// No `.ab-label` at all. If the anchor already carries any text
-	// content (direct or in nested spans / divs), trust the plugin's
-	// rendering and leave it alone. Truly icon-only anchors (with the
-	// glyph as a background image or pure-SVG) have an empty
-	// `textContent` and pick up the canonical label here.
-	const fullText = anchor.textContent.replace(/\s+/g, ' ').trim();
-	if (fullText) return;
+	const visibleLabel = labels.find(
+		(l) => !l.classList.contains('screen-reader-text') && normalizeText(l.textContent)
+	);
+	if (visibleLabel || hasVisibleLabelText(anchor)) return;
 
 	const canonical = entry && entry.labels && entry.labels.canonical;
-	if (!canonical) return;
+	if (!canonical || anchor.querySelector('.' + MIRROR_LABEL_CLASS)) {
+		return;
+	}
 
 	const label = document.createElement('span');
 	label.className = 'ab-label ' + MIRROR_LABEL_CLASS;
 	label.textContent = canonical;
-	anchor.appendChild(label);
+	const badge = anchor.querySelector('.wp-ui-notification, .yoast-issue-counter, .yoast-issues-count');
+	anchor.insertBefore(label, badge || null);
+}
+
+function hasVisibleLabelText(anchor) {
+	const walker = document.createTreeWalker(anchor, NodeFilter.SHOW_TEXT, {
+		acceptNode(node) {
+			const text = normalizeText(node.nodeValue);
+			if (!text) return NodeFilter.FILTER_REJECT;
+			const parent = node.parentElement;
+			if (!parent) return NodeFilter.FILTER_REJECT;
+			if (parent.closest(NON_LABEL_TEXT_SELECTOR)) return NodeFilter.FILTER_REJECT;
+			if (isHiddenByMarkup(parent, anchor)) return NodeFilter.FILTER_REJECT;
+			return NodeFilter.FILTER_ACCEPT;
+		},
+	});
+	return Boolean(walker.nextNode());
+}
+
+function isHiddenByMarkup(el, stopAt) {
+	let cursor = el;
+	while (cursor && cursor !== stopAt.parentElement) {
+		if (cursor.hasAttribute('hidden')) return true;
+		if (cursor.getAttribute('aria-hidden') === 'true') return true;
+		if (cursor.classList && cursor.classList.contains('screen-reader-text')) return true;
+		if (cursor.style && (cursor.style.display === 'none' || cursor.style.visibility === 'hidden')) return true;
+		if (cursor === stopAt) return false;
+		cursor = cursor.parentElement;
+	}
+	return false;
+}
+
+function normalizeText(text) {
+	return (text || '').replace(/\s+/g, ' ').trim();
 }

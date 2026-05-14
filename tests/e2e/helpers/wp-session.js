@@ -19,11 +19,17 @@ const AUTO_LOGIN_URL = process.env.E2E_AUTO_LOGIN || '';
 const DEBUG_ENABLED = process.env.E2E_DEBUG === '1';
 
 function baseUrl() {
-	return BASE_URL.replace(/\/$/, '');
+	if (BASE_URL) return BASE_URL.replace(/\/$/, '');
+	if (!AUTO_LOGIN_URL) return '';
+	try {
+		return new URL(AUTO_LOGIN_URL).origin;
+	} catch (err) {
+		return '';
+	}
 }
 
 function isConfigured() {
-	return BASE_URL !== '' || AUTO_LOGIN_URL !== '';
+	return baseUrl() !== '';
 }
 
 async function loginToWp(page) {
@@ -35,12 +41,29 @@ async function loginToWp(page) {
 		// cookie attached.
 		await page.goto(AUTO_LOGIN_URL, { waitUntil: 'networkidle' });
 		await page.goto(`${baseUrl()}/wp-admin/`, { waitUntil: 'domcontentloaded' });
-		return;
+		if (await hasAdminBar(page)) return;
 	}
-	await page.goto(`${baseUrl()}/wp-login.php`);
-	await page.fill('#user_login', USER);
-	await page.fill('#user_pass', PASS);
-	await Promise.all([page.waitForURL(/wp-admin/), page.click('#wp-submit')]);
+
+	await page.goto(`${baseUrl()}/wp-admin/`, { waitUntil: 'domcontentloaded' });
+	if (await hasAdminBar(page)) return;
+
+	for (let attempt = 0; attempt < 3; attempt++) {
+		await page.goto(`${baseUrl()}/wp-login.php`, { waitUntil: 'domcontentloaded' });
+		await page.locator('#user_login').fill(USER);
+		await page.locator('#user_pass').fill(PASS);
+		await page.locator('#rememberme').check().catch(() => null);
+		await Promise.all([
+			page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => null),
+			page.locator('#wp-submit').click(),
+		]);
+		await page.goto(`${baseUrl()}/wp-admin/`, { waitUntil: 'domcontentloaded' });
+		if (await hasAdminBar(page)) return;
+	}
+	await page.waitForSelector('#wpadminbar', { timeout: 15000 });
+}
+
+async function hasAdminBar(page) {
+	return page.locator('#wpadminbar').count().then((count) => count > 0).catch(() => false);
 }
 
 module.exports = {

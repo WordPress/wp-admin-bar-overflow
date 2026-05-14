@@ -34,9 +34,13 @@ test.describe('A.1 S1.x scenarios', () => {
 		expect(triggerIdx).toBeLessThan(myAccountIdx);
 	});
 
-	test('S1.3 desktop click opens dropdown: aria-expanded flips on trigger anchor', async ({ page }) => {
-		await page.setViewportSize({ width: 1024, height: 800 });
+	test('S1.3 click opens dropdown: aria-expanded flips on trigger anchor when trigger is visible', async ({ page }) => {
+		await page.setViewportSize({ width: 720, height: 800 });
 		await page.goto(`${baseUrl()}/wp-admin/`, { waitUntil: 'networkidle' });
+		await page.waitForFunction(() => {
+			const trigger = document.getElementById('wp-admin-bar-overflow-plugins');
+			return trigger && getComputedStyle(trigger).display !== 'none';
+		});
 
 		const anchor = page.locator('#wp-admin-bar-overflow-plugins > a.ab-item');
 		await expect(anchor).toHaveAttribute('aria-expanded', 'false');
@@ -54,8 +58,12 @@ test.describe('A.1 S1.x scenarios', () => {
 	});
 
 	test('S1.3b aria-expanded toggle lands on the trigger anchor, not on mirror anchors', async ({ page }) => {
-		await page.setViewportSize({ width: 1024, height: 800 });
+		await page.setViewportSize({ width: 720, height: 800 });
 		await page.goto(`${baseUrl()}/wp-admin/`, { waitUntil: 'networkidle' });
+		await page.waitForFunction(() => {
+			const trigger = document.getElementById('wp-admin-bar-overflow-plugins');
+			return trigger && getComputedStyle(trigger).display !== 'none';
+		});
 
 		const triggerAnchor = page.locator('#wp-admin-bar-overflow-plugins > a.ab-item');
 		await triggerAnchor.click();
