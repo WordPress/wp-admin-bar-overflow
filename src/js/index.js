@@ -16,16 +16,40 @@ import { setupMutationSync } from './mutation-sync.js';
 import { exposeDebugWhenEnabled } from './debug.js';
 
 (function bootstrap() {
+	if (typeof performance !== 'undefined' && performance.mark) {
+		try {
+			performance.mark('wpabo:start');
+		} catch (err) {
+			// User Timing is best-effort; survives any UA gap silently.
+		}
+	}
+	const finish = () => {
+		if (typeof performance !== 'undefined' && performance.measure) {
+			try {
+				performance.measure('wpabo:bootstrap', 'wpabo:start');
+			} catch (err) {
+			// User Timing is best-effort; survives any UA gap silently.
+		}
+		}
+	};
+
 	const dataEl = document.getElementById('wp-admin-bar-overflow-data');
-	if (!dataEl) return;
+	if (!dataEl) {
+		finish();
+		return;
+	}
 
 	let navModel;
 	try {
 		navModel = JSON.parse(dataEl.textContent);
 	} catch (err) {
+		finish();
 		return;
 	}
-	if (!navModel || !navModel.enabled) return;
+	if (!navModel || !navModel.enabled) {
+		finish();
+		return;
+	}
 
 	const allNodes = navModel.nodes || [];
 	const pluginIds = [];
@@ -35,10 +59,16 @@ import { exposeDebugWhenEnabled } from './debug.js';
 			pluginIds.push(node.nodeId);
 		}
 	}
-	if (pluginIds.length === 0) return;
+	if (pluginIds.length === 0) {
+		finish();
+		return;
+	}
 
 	const bar = document.getElementById('wpadminbar');
-	if (!bar) return;
+	if (!bar) {
+		finish();
+		return;
+	}
 
 	setupOverflow(bar, pluginIds, navModel.breakpoints || {});
 	setupMirror(bar, navModel);
@@ -46,4 +76,5 @@ import { exposeDebugWhenEnabled } from './debug.js';
 	setupMutationSync(bar, new Set(pluginIds));
 
 	exposeDebugWhenEnabled(navModel.flags && navModel.flags.debug);
+	finish();
 })();

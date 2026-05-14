@@ -10,6 +10,8 @@
  * a separate concern (A.1 work item 3).
  */
 
+import { recordResizeCallback } from './debug.js';
+
 const CLASSIFIED_CLASS = 'wp-admin-bar-overflow-classified-plugin-node';
 const OVERFLOW_CLASS = 'wp-admin-bar-overflow-hidden-by-overflow';
 const TRIGGER_RESERVE_PX = 80;
@@ -36,10 +38,15 @@ export function setupOverflow(barEl, classifiedPluginIds, breakpoints) {
 	if (typeof ResizeObserver === 'undefined') return;
 
 	resizeObserver = new ResizeObserver((roEntries) => {
-		const width =
-			(roEntries && roEntries[0] && roEntries[0].contentRect && roEntries[0].contentRect.width) ||
-			bar.offsetWidth;
-		applyOverflowPolicy(width);
+		const start = performance.now();
+		try {
+			const width =
+				(roEntries && roEntries[0] && roEntries[0].contentRect && roEntries[0].contentRect.width) ||
+				bar.offsetWidth;
+			applyOverflowPolicy(width);
+		} finally {
+			recordResizeCallback(performance.now() - start);
+		}
 	});
 	resizeObserver.observe(bar);
 }
