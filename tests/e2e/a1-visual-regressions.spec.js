@@ -137,12 +137,17 @@ test.describe('A.1 visual regressions', () => {
 			const mid = (rect) => rect.top + rect.height / 2;
 			return {
 				labelText: label.textContent.trim(),
+				labelWidth: lr.width,
+				badgeWidth: br.width,
+				badgeHeight: br.height,
 				labelMidDelta: Math.abs(mid(lr) - mid(ar)),
 				badgeMidDelta: Math.abs(mid(br) - mid(ar)),
 			};
 		});
 
 		expect(yoast.labelText).toBe('Yoast SEO');
+		expect(yoast.labelWidth).toBeGreaterThan(40);
+		expect(Math.abs(yoast.badgeWidth - yoast.badgeHeight)).toBeLessThanOrEqual(2);
 		expect(yoast.labelMidDelta).toBeLessThanOrEqual(2);
 		expect(yoast.badgeMidDelta).toBeLessThanOrEqual(2);
 	});
@@ -292,12 +297,14 @@ function coreAdminBarCss() {
 		#wpadminbar .ab-submenu .ab-item { height: auto; line-height: 20px; padding: 8px 10px; }
 		#wpadminbar .wp-ui-notification { align-items: center; background: #d63638; border-radius: 12px; color: #fff; display: inline-flex; font-size: 11px; height: 18px; justify-content: center; line-height: 18px; min-width: 18px; }
 		.yoast-logo { background: #8c8f94; border-radius: 2px; }
+		.yoast-issue-counter { height: 32px; line-height: 32px; padding: 1px 7px 1px 6px; }
 		.screen-reader-text { border: 0; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; word-wrap: normal !important; }
 		@media (max-width: 782px) {
 			body { padding-top: 46px; }
 			#wpadminbar { font-size: 14px; height: 46px; line-height: 46px; }
 			#wpadminbar .ab-item { height: 46px; line-height: 46px; }
 			#wpadminbar .ab-submenu .ab-item { height: auto; line-height: 20px; }
+			#wpadminbar .ab-label { clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; position: absolute; width: 1px; }
 		}
 	`;
 }

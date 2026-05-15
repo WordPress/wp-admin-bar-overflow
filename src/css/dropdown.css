@@ -7,6 +7,10 @@
  */
 
 #wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
+	align-items: center;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
 	min-width: 36px;
 	text-align: center;
 }
@@ -52,18 +56,35 @@
 }
 
 #wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-admin-bar-overflow-mirror-label {
+	clip: auto;
+	clip-path: none;
 	flex: 1 1 auto;
-	margin-left: 0;
+	height: auto;
+	line-height: 20px;
+	margin: 0;
 	min-width: 0;
 	overflow: hidden;
+	position: static;
 	text-align: left;
 	text-overflow: ellipsis;
+	width: auto;
 }
 
 #wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-ui-notification {
 	align-self: center;
+	align-items: center;
+	border-radius: 9999px;
+	box-sizing: border-box;
+	display: inline-flex;
 	flex: 0 0 auto;
+	height: 18px;
+	justify-content: center;
+	line-height: 18px;
 	margin-left: auto;
+	min-width: 18px;
+	padding: 0 !important;
+	position: static;
+	width: 18px;
 }
 
 /* Placeholder hide fallback. The renderer also emits an inline rule so the
