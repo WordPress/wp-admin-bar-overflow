@@ -34,10 +34,15 @@ mkdir -p "${STAGE_DIR}"
 # Build the runtime bundle first so the dist directory is fresh. The
 # renderer's `emit_runtime_{css,js}` reads from dist/ at request time;
 # shipping a zip without dist/ leaves the plugin functional as a PHP-only
-# trigger registrar but with no runtime behaviour. Skip when node is
-# unavailable (best-effort).
-if command -v npm >/dev/null 2>&1; then
-	( cd "${ROOT_DIR}" && npm run build >/dev/null 2>&1 ) || true
+# trigger registrar but with no runtime behaviour.
+if ! command -v npm >/dev/null 2>&1; then
+	echo "package.sh: npm is required to build runtime assets" >&2
+	exit 1
+fi
+( cd "${ROOT_DIR}" && npm run build >/dev/null )
+if [ ! -f "${ROOT_DIR}/dist/runtime.js" ] || [ ! -f "${ROOT_DIR}/dist/runtime.css" ]; then
+	echo "package.sh: runtime assets were not built" >&2
+	exit 1
 fi
 
 # Files and directories that ship in the distributable. Everything else
@@ -47,11 +52,9 @@ cp "${ROOT_DIR}/${PLUGIN_SLUG}.php" "${STAGE_DIR}/"
 cp "${ROOT_DIR}/LICENSE" "${STAGE_DIR}/"
 cp "${ROOT_DIR}/README.md" "${STAGE_DIR}/"
 cp -R "${ROOT_DIR}/src" "${STAGE_DIR}/src"
-if [ -d "${ROOT_DIR}/dist" ] && [ -f "${ROOT_DIR}/dist/runtime.js" ]; then
-	mkdir -p "${STAGE_DIR}/dist"
-	cp "${ROOT_DIR}/dist/runtime.js" "${STAGE_DIR}/dist/"
-	cp "${ROOT_DIR}/dist/runtime.css" "${STAGE_DIR}/dist/"
-fi
+mkdir -p "${STAGE_DIR}/dist"
+cp "${ROOT_DIR}/dist/runtime.js" "${STAGE_DIR}/dist/"
+cp "${ROOT_DIR}/dist/runtime.css" "${STAGE_DIR}/dist/"
 
 # Optionally include a readme.txt when present (wp.org-style readme).
 if [ -f "${ROOT_DIR}/readme.txt" ]; then

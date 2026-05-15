@@ -92,7 +92,7 @@ final class Admin_Bar_Overflow_Renderer_Test extends TestCase {
 	}
 
 	public function test_renderer_uses_dropdown_label_for_trigger_title(): void {
-		add_filter( 'wp_admin_bar_overflow_dropdown_label', static fn () => 'Tools' );
+		add_filter( 'wp_admin_bar_overflow_dropdown_label', static fn () => 'Tools & Plugins' );
 		$this->seed_classifier_with_one_plugin_node();
 
 		ob_start();
@@ -100,7 +100,7 @@ final class Admin_Bar_Overflow_Renderer_Test extends TestCase {
 		ob_end_clean();
 
 		$nodes = $this->bar()->get_nodes();
-		$this->assertSame( 'Tools', $nodes['overflow-plugins']->title );
+		$this->assertSame( '<span class="screen-reader-text">Tools &amp; Plugins</span>', $nodes['overflow-plugins']->title );
 	}
 
 	public function test_renderer_registers_placeholder_group_and_child(): void {

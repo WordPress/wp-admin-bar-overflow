@@ -70,8 +70,12 @@ import { exposeDebugWhenEnabled } from './debug.js';
 		return;
 	}
 
-	setupOverflow(bar, pluginIds, navModel.breakpoints || {});
+	// Order matters: mirror clones the pristine originals first, then
+	// overflow adds the runtime hide class to the originals. Reversing
+	// this order would copy the hide class onto the mirrors and the
+	// responsive CSS would hide them inside the dropdown at ≤ 782px.
 	setupMirror(bar, navModel);
+	setupOverflow(bar, pluginIds, navModel.breakpoints || {});
 	setupClickForward(bar);
 	setupMutationSync(bar, new Set(pluginIds));
 

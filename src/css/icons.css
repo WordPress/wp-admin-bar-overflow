@@ -8,11 +8,12 @@
  */
 
 #wpadminbar #wp-admin-bar-overflow-plugins > .ab-item::before {
+	display: block;
 	font: 400 20px/1 dashicons, sans-serif;
 	content: "\f106";
 	speak: never;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	vertical-align: middle;
-	margin-top: 6px;
+	height: 20px;
+	width: 20px;
 }

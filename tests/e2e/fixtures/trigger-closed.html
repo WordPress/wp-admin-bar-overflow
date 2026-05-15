@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Trigger closed — axe fixture</title>
+	<title>Trigger closed axe fixture</title>
 	<style>
 		body { margin: 0; font: 13px/1 sans-serif; background: #f0f0f1; color: #1d2327; }
 		main { padding: 64px 16px; max-width: 720px; margin: 0 auto; }
@@ -18,6 +18,7 @@
 		#wpadminbar .menupop.hover > .ab-sub-wrapper { display: block; }
 		#wpadminbar .ab-submenu .ab-item { display: block; height: auto; padding: 8px 12px; color: #fff; }
 		#wpadminbar .ab-empty-item { padding: 0 12px; color: #fff; }
+		.screen-reader-text { border: 0; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; word-wrap: normal !important; }
 		.wp-admin-bar-overflow-placeholder { display: none; }
 	</style>
 </head>
@@ -28,7 +29,7 @@
 			<li id="wp-admin-bar-overflow-plugins" class="menupop wp-admin-bar-overflow-trigger" role="none">
 				<a class="ab-item" href="#" onclick="return false;" role="menuitem" aria-expanded="false" aria-haspopup="menu">
 					<span class="ab-icon" aria-hidden="true"></span>
-					<span class="ab-label">Plugins</span>
+					<span class="screen-reader-text">Plugins</span>
 				</a>
 				<div class="ab-sub-wrapper" role="none">
 					<ul id="wp-admin-bar-overflow-plugins-default" class="ab-submenu" role="menu" aria-label="Plugins overflow">

@@ -7,27 +7,128 @@
  */
 
 #wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
+	align-items: center;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
 	min-width: 36px;
 	text-align: center;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item .wp-admin-bar-overflow-trigger-label {
-	margin-left: 6px;
+#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item .screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal !important;
 }
 
 #wpadminbar #wp-admin-bar-overflow-plugins.menupop > .ab-sub-wrapper {
 	min-width: 220px;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu .wp-admin-bar-overflow-mirror > .ab-item {
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item {
+	align-items: center;
+	box-sizing: border-box;
+	color: rgb(240 246 252 / 70%);
+	display: flex;
+	gap: 6px;
+	min-height: 36px;
+	padding: 8px 10px;
 	white-space: nowrap;
+	width: 100%;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .ab-item,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .ab-icon,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .dashicons,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > [id$="-ab-icon"] {
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	background-size: 20px 20px !important;
+	box-sizing: border-box;
+	color: inherit !important;
+	flex: 0 0 20px;
+	height: 20px;
+	line-height: 20px;
+	margin: 0;
+	min-width: 20px;
+	padding: 0;
+	width: 20px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .ab-icon::before,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .dashicons::before {
+	color: inherit !important;
+	display: block;
+	font-size: 20px;
+	height: 20px;
+	line-height: 20px;
+	width: 20px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .wp-admin-bar-arrow {
+	align-items: center;
+	display: inline-flex;
+	flex: 0 0 16px;
+	height: 20px;
+	justify-content: center;
+	line-height: 20px;
+	margin: 0;
+	margin-left: auto;
+	order: 2;
+	padding: 0;
+	position: static;
+	width: 16px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .wp-admin-bar-arrow::before {
+	left: auto;
+	margin: 0;
+	position: static;
+	right: auto;
+	top: auto;
 }
 
 #wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-admin-bar-overflow-mirror-label {
-	margin-left: 6px;
+	clip: auto;
+	clip-path: none;
+	color: inherit !important;
+	flex: 1 1 auto;
+	height: auto;
+	line-height: 20px;
+	margin: 0;
+	min-width: 0;
+	overflow: hidden;
+	position: static;
+	text-align: left;
+	text-overflow: ellipsis;
+	width: auto;
 }
 
-/* Placeholder hide fallback — the renderer also emits an inline rule so the
+#wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-ui-notification {
+	align-self: center;
+	align-items: center;
+	border-radius: 9999px;
+	box-sizing: border-box;
+	display: inline-flex;
+	flex: 0 0 auto;
+	height: 18px;
+	justify-content: center;
+	line-height: 18px;
+	margin-left: auto;
+	min-width: 18px;
+	padding: 0 !important;
+	position: static;
+	width: 18px;
+}
+
+/* Placeholder hide fallback. The renderer also emits an inline rule so the
  * placeholder is hidden before the bundle loads. This selector mirrors that
  * rule so themes that ship a stricter CSP and block inline styles still
  * hide the placeholder. */
@@ -37,7 +138,8 @@
 
 /* Runtime hide for nodes the ResizeObserver decided do not fit at narrow
  * desktop (783-1279px). The mirror inside the dropdown is the only visible
- * occurrence while the class is present. */
-#wpadminbar .wp-admin-bar-overflow-hidden-by-overflow {
-	display: none;
+ * occurrence while the class is present. `!important` wins over the
+ * id-scoped `display` rules many plugins inline (see responsive.css). */
+#wpadminbar li.wp-admin-bar-overflow-hidden-by-overflow {
+	display: none !important;
 }

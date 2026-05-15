@@ -11,7 +11,70 @@
  */
 
 @media (max-width: 782px) {
-	#wpadminbar .wp-admin-bar-overflow-classified-plugin-node {
+	/* Many plugins (e.g. Yoast SEO) inline an id-scoped
+	 * `#wpadminbar #wp-admin-bar-<id> { display: ... }` rule that beats
+	 * a class-scoped `display: none`. Add `!important` so the hide rule
+	 * wins regardless of plugin specificity. */
+	#wpadminbar li.wp-admin-bar-overflow-classified-plugin-node {
+		display: none !important;
+	}
+
+	/* Core's admin-bar mobile stylesheet hides every `top-secondary > li`
+	 * at this band and only explicitly re-enables a closed set
+	 * (`my-account`, `search`, …). Re-enable our trigger so the dropdown
+	 * stays reachable on mobile. */
+	#wpadminbar #wp-admin-bar-top-secondary > #wp-admin-bar-overflow-plugins {
+		display: block !important;
+	}
+
+	#wpadminbar #wp-admin-bar-overflow-plugins.menupop > .ab-sub-wrapper {
+		box-sizing: border-box;
+		left: 0 !important;
+		max-height: calc(100vh - 46px);
+		max-height: calc(100dvh - 46px);
+		max-width: 100vw;
+		min-width: 0;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior: contain;
+		overflow-x: hidden;
+		overflow-y: auto;
+		position: fixed;
+		right: auto !important;
+		top: 46px;
+		width: 100vw;
+	}
+
+	#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu {
+		box-sizing: border-box;
+		width: 100%;
+	}
+}
+
+@media (min-width: 783px) and (max-width: 1279px) {
+	#wpadminbar #wp-admin-bar-overflow-plugins {
+		display: none;
+	}
+
+	#wpadminbar #wp-admin-bar-overflow-plugins.wp-admin-bar-overflow-trigger-active {
+		display: block;
+	}
+
+	/* Narrow desktop: each mirror starts hidden; the runtime adds
+	 * `wp-admin-bar-overflow-mirror-shown` to the mirror whose original
+	 * overflows. Visible mirrors override the default `display: none`. */
+	#wpadminbar .wp-admin-bar-overflow-mirror {
+		display: none;
+	}
+
+	#wpadminbar .wp-admin-bar-overflow-mirror.wp-admin-bar-overflow-mirror-shown {
+		display: block;
+	}
+}
+
+@media (min-width: 1280px) {
+	/* Wide desktop: every plugin original fits inline; no mirroring
+	 * needed, so hide the dropdown trigger itself. */
+	#wpadminbar #wp-admin-bar-overflow-plugins {
 		display: none;
 	}
 }
