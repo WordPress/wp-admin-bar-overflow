@@ -126,7 +126,7 @@ test.describe('A.1 visual regressions', () => {
 		await loadFixture(page, { width: 741, height: 745, pluginCount: 12 });
 		await page.locator('#wp-admin-bar-overflow-plugins > a.ab-item').click();
 
-		const yoast = await page.evaluate(() => {
+		const state = await page.evaluate(() => {
 			const mirror = document.getElementById('wp-admin-bar-mirror-wpseo-menu');
 			const anchor = mirror.querySelector(':scope > a.ab-item');
 			const label = anchor.querySelector('.wp-admin-bar-overflow-mirror-label');
@@ -138,30 +138,71 @@ test.describe('A.1 visual regressions', () => {
 			const ir = icon.getBoundingClientRect();
 			const iconStyle = getComputedStyle(icon);
 			const mid = (rect) => rect.top + rect.height / 2;
+			const textLeft = (selector) => {
+				const row = document.querySelector(selector);
+				const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT, {
+					acceptNode(node) {
+						return node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+					},
+				});
+				const text = walker.nextNode();
+				const range = document.createRange();
+				range.selectNodeContents(text);
+				const r = range.getBoundingClientRect();
+				range.detach();
+				return r.left;
+			};
+			const textOnlyRowLeft = textLeft('#wp-admin-bar-mirror-plugin-3 > a.ab-item');
+			const deepAnchor = document.querySelector('#wp-admin-bar-mirror-deep-menu > a.ab-item');
+			const deepAnchorRect = deepAnchor.getBoundingClientRect();
+			const deepArrowRect = deepAnchor.querySelector('.wp-admin-bar-arrow').getBoundingClientRect();
+			const iconToolAnchor = document.querySelector('#wp-admin-bar-mirror-icon-tool > a.ab-item');
+			const iconToolLabel = iconToolAnchor.querySelector('.wp-admin-bar-overflow-mirror-label');
+			const iconToolIcon = iconToolAnchor.querySelector('.ab-icon.dashicons');
+			const iconToolIconRect = iconToolIcon.getBoundingClientRect();
 			return {
-				labelText: label.textContent.trim(),
-				labelWidth: lr.width,
-				badgeWidth: br.width,
-				badgeHeight: br.height,
-				iconWidth: ir.width,
-				iconHeight: ir.height,
-				iconBackgroundSize: iconStyle.backgroundSize,
-				iconBackgroundPosition: iconStyle.backgroundPosition,
-				labelMidDelta: Math.abs(mid(lr) - mid(ar)),
-				badgeMidDelta: Math.abs(mid(br) - mid(ar)),
-				iconMidDelta: Math.abs(mid(ir) - mid(ar)),
+				yoast: {
+					labelText: label.textContent.trim(),
+					labelWidth: lr.width,
+					badgeWidth: br.width,
+					badgeHeight: br.height,
+					iconWidth: ir.width,
+					iconHeight: ir.height,
+					iconBackgroundSize: iconStyle.backgroundSize,
+					iconBackgroundPosition: iconStyle.backgroundPosition,
+					labelMidDelta: Math.abs(mid(lr) - mid(ar)),
+					badgeMidDelta: Math.abs(mid(br) - mid(ar)),
+					iconMidDelta: Math.abs(mid(ir) - mid(ar)),
+				},
+				deepMenu: {
+					textLeftDelta: Math.abs(textLeft('#wp-admin-bar-mirror-deep-menu > a.ab-item') - textOnlyRowLeft),
+					arrowRightDelta: Math.abs(deepAnchorRect.right - deepArrowRect.right),
+				},
+				iconTool: {
+					labelText: iconToolLabel.textContent.trim(),
+					iconWidth: iconToolIconRect.width,
+					iconHeight: iconToolIconRect.height,
+					iconColor: getComputedStyle(iconToolIcon).color,
+					anchorColor: getComputedStyle(iconToolAnchor).color,
+				},
 			};
 		});
 
-		expect(yoast.labelText).toBe('Yoast SEO');
-		expect(yoast.labelWidth).toBeGreaterThan(40);
-		expect(Math.abs(yoast.badgeWidth - yoast.badgeHeight)).toBeLessThanOrEqual(2);
-		expect(yoast.iconWidth).toBe(20);
-		expect(yoast.iconHeight).toBe(20);
-		expect(yoast.iconBackgroundSize).toBe('20px 20px');
-		expect(yoast.labelMidDelta).toBeLessThanOrEqual(2);
-		expect(yoast.badgeMidDelta).toBeLessThanOrEqual(2);
-		expect(yoast.iconMidDelta).toBeLessThanOrEqual(2);
+		expect(state.yoast.labelText).toBe('Yoast SEO');
+		expect(state.yoast.labelWidth).toBeGreaterThan(40);
+		expect(Math.abs(state.yoast.badgeWidth - state.yoast.badgeHeight)).toBeLessThanOrEqual(2);
+		expect(state.yoast.iconWidth).toBe(20);
+		expect(state.yoast.iconHeight).toBe(20);
+		expect(state.yoast.iconBackgroundSize).toBe('20px 20px');
+		expect(state.yoast.labelMidDelta).toBeLessThanOrEqual(2);
+		expect(state.yoast.badgeMidDelta).toBeLessThanOrEqual(2);
+		expect(state.yoast.iconMidDelta).toBeLessThanOrEqual(2);
+		expect(state.deepMenu.textLeftDelta).toBeLessThanOrEqual(1);
+		expect(state.deepMenu.arrowRightDelta).toBeLessThanOrEqual(12);
+		expect(state.iconTool.labelText).toBe('Fixture Icon Tool');
+		expect(state.iconTool.iconWidth).toBe(20);
+		expect(state.iconTool.iconHeight).toBe(20);
+		expect(state.iconTool.iconColor).toBe(state.iconTool.anchorColor);
 	});
 
 	test('S1.34 keeps an overflowing mirror visible after mutation refresh', async ({ page }) => {
@@ -262,9 +303,20 @@ function buildNavNodes(pluginCount) {
 		pluginNode('wpseo-menu', 'Yoast SEO', 20),
 	];
 	for (let i = 3; i <= pluginCount; i++) {
-		nodes.push(pluginNode(`plugin-${i}`, `Plugin ${i}`, 20 + i));
+		const special = specialPlugin(i);
+		nodes.push(pluginNode(special.rawId, special.canonical, 20 + i));
 	}
 	return nodes;
+}
+
+function specialPlugin(index) {
+	if (index === 4) {
+		return { rawId: 'deep-menu', canonical: 'Deep Menu' };
+	}
+	if (index === 5) {
+		return { rawId: 'icon-tool', canonical: 'Fixture Icon Tool' };
+	}
+	return { rawId: `plugin-${index}`, canonical: `Plugin ${index}` };
 }
 
 function pluginNode(rawId, canonical, priority) {
@@ -288,6 +340,18 @@ function pluginItems(pluginCount) {
 		`<li id="wp-admin-bar-wpseo-menu" role="none"><a class="ab-item" href="#" role="menuitem"><div id="wp-admin-bar-yoast-ab-icon" class="ab-item yoast-logo svg"><span class="screen-reader-text">SEO</span></div><span class="wp-ui-notification yoast-issue-counter">2</span></a></li>`,
 	];
 	for (let i = 3; i <= pluginCount; i++) {
+		if (i === 4) {
+			items.push(
+				`<li id="wp-admin-bar-deep-menu" class="menupop" role="none"><a class="ab-item" href="#" role="menuitem"><span class="wp-admin-bar-arrow" aria-hidden="true"></span>Deep Menu</a><div class="ab-sub-wrapper" role="none"><ul class="ab-submenu" role="menu"><li id="wp-admin-bar-deep-child" role="none"><a class="ab-item" href="#" role="menuitem">Deep Child</a></li></ul></div></li>`
+			);
+			continue;
+		}
+		if (i === 5) {
+			items.push(
+				`<li id="wp-admin-bar-icon-tool" role="none"><a class="ab-item" href="#" role="menuitem"><span class="screen-reader-text">Fixture Icon Tool</span><span class="ab-icon dashicons dashicons-admin-tools" aria-hidden="true"></span></a></li>`
+			);
+			continue;
+		}
 		items.push(`<li id="wp-admin-bar-plugin-${i}" role="none"><a class="ab-item" href="#" role="menuitem">Plugin ${i}</a></li>`);
 	}
 	return items.join('\n');
@@ -308,6 +372,10 @@ function coreAdminBarCss() {
 		#wpadminbar .ab-submenu li { display: block; float: none; }
 		#wpadminbar .ab-submenu .ab-item { height: auto; line-height: 20px; padding: 8px 10px; }
 		#wpadminbar .wp-ui-notification { align-items: center; background: #d63638; border-radius: 12px; color: #fff; display: inline-flex; font-size: 11px; height: 18px; justify-content: center; line-height: 18px; min-width: 18px; }
+		#wpadminbar .wp-admin-bar-arrow { color: #a7aaad; display: inline-block; height: 20px; line-height: 20px; margin: 0 8px 0 0; width: 20px; }
+		#wpadminbar .wp-admin-bar-arrow::before { content: ">"; position: relative; }
+		#wpadminbar .dashicons { color: #72aee6; display: inline-block; font-size: 32px; height: 32px; line-height: 32px; width: 32px; }
+		#wpadminbar .dashicons-admin-tools::before { content: "T"; }
 		.yoast-logo { background: #8c8f94; border-radius: 2px; }
 		.yoast-logo.svg { background-position: 50% 8px; background-repeat: no-repeat; background-size: 30px; }
 		.yoast-issue-counter { height: 32px; line-height: 32px; padding: 1px 7px 1px 6px; }
