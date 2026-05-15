@@ -45,12 +45,17 @@ try {
 	if (!user || !pass) {
 		throw err;
 	}
-	console.log('> Auto-login did not land in wp-admin, using password login...');
-	await page.goto(`${baseUrl}/wp-login.php`, { waitUntil: 'domcontentloaded' });
-	await page.fill('#user_login', user);
-	await page.fill('#user_pass', pass);
-	await Promise.all([page.waitForURL(/wp-admin/, { timeout: 15000 }), page.click('#wp-submit')]);
-}
+		console.log('> Auto-login did not land in wp-admin, using password login...');
+		await page.goto(`${baseUrl}/wp-login.php`, { waitUntil: 'domcontentloaded' });
+		await page.fill('#user_login', user);
+		await page.fill('#user_pass', pass);
+		await Promise.all([
+			page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => null),
+			page.click('#wp-submit'),
+		]);
+		await page.goto(`${baseUrl}/wp-admin/`, { waitUntil: 'domcontentloaded' });
+		await page.waitForSelector('#wpadminbar', { timeout: 15000 });
+	}
 console.log(`> Logged in, now at: ${page.url()}`);
 
 console.log('> Navigating to plugin upload page...');

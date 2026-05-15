@@ -45,6 +45,9 @@
 #wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .ab-item,
 #wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .ab-icon,
 #wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > [id$="-ab-icon"] {
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	background-size: 20px 20px !important;
 	box-sizing: border-box;
 	flex: 0 0 20px;
 	height: 20px;

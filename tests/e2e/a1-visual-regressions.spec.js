@@ -131,25 +131,37 @@ test.describe('A.1 visual regressions', () => {
 			const anchor = mirror.querySelector(':scope > a.ab-item');
 			const label = anchor.querySelector('.wp-admin-bar-overflow-mirror-label');
 			const badge = anchor.querySelector('.wp-ui-notification');
+			const icon = anchor.querySelector('#wp-admin-bar-mirror-yoast-ab-icon');
 			const ar = anchor.getBoundingClientRect();
 			const lr = label.getBoundingClientRect();
 			const br = badge.getBoundingClientRect();
+			const ir = icon.getBoundingClientRect();
+			const iconStyle = getComputedStyle(icon);
 			const mid = (rect) => rect.top + rect.height / 2;
 			return {
 				labelText: label.textContent.trim(),
 				labelWidth: lr.width,
 				badgeWidth: br.width,
 				badgeHeight: br.height,
+				iconWidth: ir.width,
+				iconHeight: ir.height,
+				iconBackgroundSize: iconStyle.backgroundSize,
+				iconBackgroundPosition: iconStyle.backgroundPosition,
 				labelMidDelta: Math.abs(mid(lr) - mid(ar)),
 				badgeMidDelta: Math.abs(mid(br) - mid(ar)),
+				iconMidDelta: Math.abs(mid(ir) - mid(ar)),
 			};
 		});
 
 		expect(yoast.labelText).toBe('Yoast SEO');
 		expect(yoast.labelWidth).toBeGreaterThan(40);
 		expect(Math.abs(yoast.badgeWidth - yoast.badgeHeight)).toBeLessThanOrEqual(2);
+		expect(yoast.iconWidth).toBe(20);
+		expect(yoast.iconHeight).toBe(20);
+		expect(yoast.iconBackgroundSize).toBe('20px 20px');
 		expect(yoast.labelMidDelta).toBeLessThanOrEqual(2);
 		expect(yoast.badgeMidDelta).toBeLessThanOrEqual(2);
+		expect(yoast.iconMidDelta).toBeLessThanOrEqual(2);
 	});
 
 	test('S1.34 keeps an overflowing mirror visible after mutation refresh', async ({ page }) => {
@@ -273,7 +285,7 @@ function pluginNode(rawId, canonical, priority) {
 function pluginItems(pluginCount) {
 	const items = [
 		`<li id="wp-admin-bar-query-monitor" role="none"><a class="ab-item" href="#" role="menuitem">0.60s 50.6MB 0.00s 4Q</a></li>`,
-		`<li id="wp-admin-bar-wpseo-menu" role="none"><a class="ab-item" href="#" role="menuitem"><div id="wp-admin-bar-yoast-ab-icon" class="ab-item yoast-logo"><span class="screen-reader-text">SEO</span></div><span class="wp-ui-notification">2</span></a></li>`,
+		`<li id="wp-admin-bar-wpseo-menu" role="none"><a class="ab-item" href="#" role="menuitem"><div id="wp-admin-bar-yoast-ab-icon" class="ab-item yoast-logo svg"><span class="screen-reader-text">SEO</span></div><span class="wp-ui-notification yoast-issue-counter">2</span></a></li>`,
 	];
 	for (let i = 3; i <= pluginCount; i++) {
 		items.push(`<li id="wp-admin-bar-plugin-${i}" role="none"><a class="ab-item" href="#" role="menuitem">Plugin ${i}</a></li>`);
@@ -297,6 +309,7 @@ function coreAdminBarCss() {
 		#wpadminbar .ab-submenu .ab-item { height: auto; line-height: 20px; padding: 8px 10px; }
 		#wpadminbar .wp-ui-notification { align-items: center; background: #d63638; border-radius: 12px; color: #fff; display: inline-flex; font-size: 11px; height: 18px; justify-content: center; line-height: 18px; min-width: 18px; }
 		.yoast-logo { background: #8c8f94; border-radius: 2px; }
+		.yoast-logo.svg { background-position: 50% 8px; background-repeat: no-repeat; background-size: 30px; }
 		.yoast-issue-counter { height: 32px; line-height: 32px; padding: 1px 7px 1px 6px; }
 		.screen-reader-text { border: 0; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; word-wrap: normal !important; }
 		@media (max-width: 782px) {
