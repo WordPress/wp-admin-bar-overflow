@@ -100,6 +100,7 @@ class Admin_Bar_Overflow_Classifier {
 			),
 			'flags'       => array(
 				'prefersReducedMotion' => false,
+				'debug'                => defined( 'WP_ADMIN_BAR_OVERFLOW_DEBUG' ) && constant( 'WP_ADMIN_BAR_OVERFLOW_DEBUG' ),
 			),
 		);
 	}
@@ -151,6 +152,15 @@ class Admin_Bar_Overflow_Classifier {
 
 		$raw_id = isset( $node->id ) ? (string) $node->id : '';
 		if ( '' === $raw_id ) {
+			return null;
+		}
+
+		// Skip group containers — they are not user-facing nodes. Core
+		// registers `top-secondary` (and friends) via `add_group()` with
+		// `group = true`; classifying them would (a) inflate plugin counts
+		// and (b) cause the runtime to add the hide class to the entire
+		// right-side group container at ≤ 782px.
+		if ( isset( $node->group ) && $node->group ) {
 			return null;
 		}
 

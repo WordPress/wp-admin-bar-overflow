@@ -1,0 +1,15 @@
+{
+	"extends": "stylelint-config-standard",
+	"rules": {
+		"selector-id-pattern": null,
+		"selector-class-pattern": null,
+		"declaration-block-no-redundant-longhand-properties": null,
+		"no-descending-specificity": null,
+		"comment-empty-line-before": null,
+		"value-keyword-case": [
+			"lower",
+			{ "ignoreKeywords": ["dashicons"] }
+		],
+		"media-feature-range-notation": "prefix"
+	}
+}

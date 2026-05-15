@@ -123,3 +123,11 @@ jobs:
           else
             echo "No Jest tests yet; JS tests land with the runtime in a follow-up PR."
           fi
+
+      - name: Bundle-size gate (Decision 8 byte budgets)
+        run: |
+          if [ -f bin/build.mjs ] && [ -d src/js ] && [ -d src/css ]; then
+            npm run build:size
+          else
+            echo "No build script yet; bundle gate lands with the runtime in a follow-up PR."
+          fi

@@ -1,0 +1,27 @@
+/*
+ * Per-band overflow rules.
+ *
+ * Tablet + mobile (≤ 782px, the wp-admin "mobile bar" breakpoint): hide
+ * every classified-as-plugin original so the dropdown is the only entry
+ * point. The runtime adds `.wp-admin-bar-overflow-classified-plugin-node`
+ * to each plugin-classified original at first paint.
+ *
+ * Mobile (≤ 600px): touch-target sizing for the dropdown trigger per
+ * WCAG 2.5.5 AAA (44 × 44 CSS px).
+ */
+
+@media (max-width: 782px) {
+	#wpadminbar .wp-admin-bar-overflow-classified-plugin-node {
+		display: none;
+	}
+}
+
+@media (max-width: 600px) {
+	#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
+		min-height: 44px;
+		min-width: 44px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+}

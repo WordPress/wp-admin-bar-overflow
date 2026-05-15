@@ -188,3 +188,4 @@ require_once __DIR__ . '/../src/class-admin-bar-overflow-user-meta-storage.php';
 require_once __DIR__ . '/../src/registry.php';
 require_once __DIR__ . '/../src/class-admin-bar-overflow-classifier.php';
 require_once __DIR__ . '/../src/class-admin-bar-overflow-data-planner.php';
+require_once __DIR__ . '/../src/class-admin-bar-overflow-renderer.php';
