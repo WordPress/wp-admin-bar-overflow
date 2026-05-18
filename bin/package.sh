@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build a distributable plugin zip at dist/wp-admin-bar-overflow-vX.Y.Z.zip.
+# Build distributable plugin zips at dist/wp-admin-bar-overflow.zip and
+# dist/wp-admin-bar-overflow-vX.Y.Z.zip.
 #
 # Reads the version number from the plugin header so the zip and the header
 # can't drift. The zip is layout-stable: unpacking it produces a single
@@ -26,9 +27,10 @@ fi
 
 DIST_DIR="${ROOT_DIR}/dist"
 STAGE_DIR="${DIST_DIR}/${PLUGIN_SLUG}"
-ZIP_PATH="${DIST_DIR}/${PLUGIN_SLUG}-v${VERSION}.zip"
+ZIP_PATH="${DIST_DIR}/${PLUGIN_SLUG}.zip"
+VERSIONED_ZIP_PATH="${DIST_DIR}/${PLUGIN_SLUG}-v${VERSION}.zip"
 
-rm -rf "${STAGE_DIR}" "${ZIP_PATH}"
+rm -rf "${STAGE_DIR}" "${ZIP_PATH}" "${VERSIONED_ZIP_PATH}"
 mkdir -p "${STAGE_DIR}"
 
 # Build the runtime bundle first so the dist directory is fresh. The
@@ -65,7 +67,9 @@ fi
 	cd "${DIST_DIR}"
 	zip -r "${ZIP_PATH}" "${PLUGIN_SLUG}" >/dev/null
 )
+cp "${ZIP_PATH}" "${VERSIONED_ZIP_PATH}"
 
 rm -rf "${STAGE_DIR}"
 
 echo "Packaged ${ZIP_PATH}"
+echo "Packaged ${VERSIONED_ZIP_PATH}"

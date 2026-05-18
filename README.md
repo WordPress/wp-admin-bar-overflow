@@ -11,15 +11,15 @@ The WordPress admin bar (`#wpadminbar`) crowds quickly at narrow viewports. Inst
 
 It is built incrementally on top of Core's existing `WP_Admin_Bar` nested-menu pattern: a small PHP classifier reads the registered nodes, a thin layer of plain ES-module JavaScript handles the overflow detection and mirroring, and a small set of filter hooks lets host adapters customise classification, priority, and trigger placement.
 
-You can try v0.1.0-alpha in a sandbox by loading the bundled Playground blueprint: <https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Automattic/wp-admin-bar-overflow/trunk/.wordpress-org/blueprints/blueprint.json> (Playground installs Query Monitor and Yoast SEO to give the dropdown something to do).
+You can try v0.1.0-alpha.1 in a sandbox by loading the bundled Playground blueprint: <https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Automattic/wp-admin-bar-overflow/trunk/.wordpress-org/blueprints/blueprint.json> (Playground installs Query Monitor and Yoast SEO to give the dropdown something to do).
 
 ## Status
 
-This is **v0.1.0-alpha**, an early prototype published from day one.
+This is **v0.1.0-alpha.1**, an early prototype published from day one.
 
 > ⚠️ **Temporary repository location.** This plugin is currently developed in `Automattic/wp-admin-bar-overflow` as a holding repo while the WordPress GitHub org coordination completes. The repository will move to `WordPress/wp-admin-bar-overflow` (or its final slug) before the v0.1.0 release. External links, release-zip URLs, and any sync automation will be updated as part of that move.
 
-No release zips are published from this temporary location. The plugin is installable by cloning the repository into `wp-content/plugins/` for local development and testing.
+A temporary alpha release zip is published from this holding repo for WPCOM vendoring and sandbox testing. The canonical public `v0.1.0` release remains reserved for `WordPress/wp-admin-bar-overflow` after the WordPress GitHub org repo exists.
 
 ## How it works
 
