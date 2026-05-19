@@ -175,6 +175,31 @@ if ( ! function_exists( 'wp_admin_bar_overflow_default_registry' ) ) {
 			);
 		}
 
+		// Host-essential nodes that look like plugins to the classifier but
+		// surface load-bearing state and should not be overflow-managed.
+		// `'skip'` short-circuits the classifier so the runtime never enrolls
+		// them; host CSS (or the responsive sheet) handles narrow viewports.
+		$skip = array(
+			array(
+				'id'     => 'woocommerce-site-visibility-badge',
+				'parent' => '',
+				'label'  => 'WooCommerce site visibility',
+			),
+		);
+
+		foreach ( $skip as $entry ) {
+			$registry[ $entry['id'] ] = array(
+				'nodeId'   => 'wp-admin-bar-' . $entry['id'],
+				'class'    => 'skip',
+				'parent'   => $entry['parent'],
+				'priority' => 0,
+				'labels'   => array(
+					'canonical'     => $entry['label'],
+					'screen_reader' => null,
+				),
+			);
+		}
+
 		return $registry;
 	}
 }
