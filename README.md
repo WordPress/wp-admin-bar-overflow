@@ -13,7 +13,7 @@ It is built incrementally on top of Core's existing `WP_Admin_Bar` nested-menu p
 
 ## Status
 
-This is **v0.1.0-alpha.1**, an early prototype, public from day 1.
+This is **v0.1.0-alpha.2**, an early prototype, public from day 1.
 
 The plugin is functional and installable as an alpha release. The public-installable plugin shape is what this repo is for. `v0.1.0` remains reserved for the first stable public release after the current interaction and design follow-ups have soaked.
 
