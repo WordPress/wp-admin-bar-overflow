@@ -4,10 +4,10 @@
 	"description": "Responsive overflow for plugin-added WordPress admin-bar nodes.",
 	"private": true,
 	"license": "GPL-2.0-or-later",
-	"homepage": "https://github.com/Automattic/wp-admin-bar-overflow",
+	"homepage": "https://github.com/WordPress/wp-admin-bar-overflow",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/wp-admin-bar-overflow.git"
+		"url": "https://github.com/WordPress/wp-admin-bar-overflow.git"
 	},
 	"scripts": {
 		"build": "node bin/build.mjs",

@@ -76,8 +76,8 @@ right-side admin-bar items out of the Plugins dropdown.
 apply_filters( 'wp_admin_bar_overflow_node_priority', int $priority, string $node_id, object $node ): int
 ```
 
-Returns the sort key used inside the dropdown. Default `100`; lower
-priorities render further left / overflow last.
+Returns the sort key used for the plugin's nav model and dropdown ordering.
+Default `100`; lower priorities render earlier in the dropdown.
 
 ### `wp_admin_bar_overflow_registry`
 
@@ -140,8 +140,9 @@ add_filter(
 );
 ```
 
-The filter is published from v0.1.0 even though the renderer is not yet
-shipped, so adapters can bind it now and be forward-compatible.
+Bind this when the default Core anchor is not the right visual placement for
+your host. For example, WordPress.com keeps the trigger at the leading edge
+of its right-side account / Reader / notifications group.
 
 ### `wp_admin_bar_overflow_storage`
 
@@ -149,9 +150,10 @@ shipped, so adapters can bind it now and be forward-compatible.
 apply_filters( 'wp_admin_bar_overflow_storage', $storage ): Admin_Bar_Overflow_Layout_Storage
 ```
 
-Phase 2 hook for the customize / reorder feature. Bind a class that
-implements `Admin_Bar_Overflow_Layout_Storage` to store per-user layout
-deltas somewhere other than WordPress user meta. Not exercised in v0.1.x.
+Future hook for a customize / reorder feature. Bind a class that implements
+`Admin_Bar_Overflow_Layout_Storage` to store per-user layout deltas somewhere
+other than WordPress user meta. The current overflow dropdown does not
+persist user layout state.
 
 ## Constants
 

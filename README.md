@@ -9,17 +9,28 @@ The WordPress admin bar (`#wpadminbar`) crowds quickly at narrow viewports. Inst
 
 **WP Admin Bar Overflow** is a small WordPress plugin that gives plugin-added admin-bar nodes a responsive overflow path. As the viewport narrows, plugin nodes that no longer fit overflow into a right-side **Plugins** dropdown. On tablet and mobile, all plugin nodes group under the dropdown unconditionally so they remain reachable on every screen size. The original DOM nodes stay in place at their registered positions (plugin JavaScript that binds to specific node IDs continues to work), and click events on the mirrored dropdown items are forwarded to the originals.
 
-It is built incrementally on top of Core's existing `WP_Admin_Bar` nested-menu pattern: a small PHP classifier reads the registered nodes, a thin layer of plain ES-module JavaScript handles the overflow detection and mirroring, and a small set of filter hooks lets host adapters customise classification, priority, and trigger placement.
-
-You can try v0.1.0-alpha.1 in a sandbox by loading the bundled Playground blueprint: <https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Automattic/wp-admin-bar-overflow/trunk/.wordpress-org/blueprints/blueprint.json> (Playground installs Query Monitor and Yoast SEO to give the dropdown something to do).
+It is built incrementally on top of Core's existing `WP_Admin_Bar` nested-menu pattern: a small PHP classifier reads the registered nodes, a lightweight JavaScript runtime handles the overflow detection and mirroring, and a small set of filter hooks lets host adapters customise classification, priority, and trigger placement.
 
 ## Status
 
-This is **v0.1.0-alpha.1**, an early prototype published from day one.
+This is **v0.1.0-alpha.1**, an early prototype, public from day 1.
 
-> ⚠️ **Temporary repository location.** This plugin is currently developed in `Automattic/wp-admin-bar-overflow` as a holding repo while the WordPress GitHub org coordination completes. The repository will move to `WordPress/wp-admin-bar-overflow` (or its final slug) before the v0.1.0 release. External links, release-zip URLs, and any sync automation will be updated as part of that move.
+The plugin is functional and installable as an alpha release. The public-installable plugin shape is what this repo is for. `v0.1.0` remains reserved for the first stable public release after the current interaction and design follow-ups have soaked.
 
-A temporary alpha release zip is published from this holding repo for WPCOM vendoring and sandbox testing. The canonical public `v0.1.0` release remains reserved for `WordPress/wp-admin-bar-overflow` after the WordPress GitHub org repo exists.
+## Try it
+
+The fastest way is the WordPress Playground demo (no install, no setup):
+
+> **[Try in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/WordPress/wp-admin-bar-overflow/trunk/.wordpress-org/blueprints/blueprint.json)**
+
+The blueprint boots WordPress with Query Monitor, Yoast SEO, and this plugin active, then drops you in `wp-admin/`. Resize the viewport to see plugin-added admin-bar nodes move into the **Plugins** dropdown.
+
+To install on your own WordPress site:
+
+1. Clone this repo into `wp-content/plugins/wp-admin-bar-overflow/`, or download a [release zip](https://github.com/WordPress/wp-admin-bar-overflow/releases) and upload via wp-admin Plugins > Add New > Upload Plugin.
+2. Activate. Plugin-added admin-bar nodes overflow into the right-side **Plugins** dropdown as space gets tight. At tablet and mobile widths, all plugin-added admin-bar nodes live under that dropdown.
+
+   Hosts that need finer control (per-blog, per-user, percentage rollout, host-owned admin-bar nodes) can override behavior from an adapter. See [`docs/host-extension-api.md`](docs/host-extension-api.md).
 
 ## How it works
 
@@ -27,8 +38,8 @@ A temporary alpha release zip is published from this holding repo for WPCOM vend
 - **Responsive overflow.** A small ES-module runtime measures the admin bar's available width with `ResizeObserver`, hides plugin-classified nodes that don't fit at the current viewport, and mirrors them into the right-side **Plugins** dropdown. At tablet + mobile widths, all plugin-classified nodes mirror unconditionally.
 - **Mirror + click forwarding.** The dropdown shows cloned `<li>` elements with renamed IDs (`mirror-` prefix); the original DOM nodes stay at their registered positions, hidden by CSS at narrow viewports. A delegated click handler forwards clicks on a mirrored item to its original, so plugin JavaScript that binds to original node IDs (counter toggles, panel openers, badge updates) continues to work.
 - **Core's nested-menu pattern.** The dropdown trigger is registered as a standard `WP_Admin_Bar` top-level node with a placeholder child, so Core renders the `menupop` + `aria-expanded` shell at server-render time. Desktop click is handled by a small runtime click handler (~250 bytes); desktop hover, Enter, and touch tap remain Core-driven via `hoverintent`, `toggleHoverIfEnter`, and `mobileHover`.
-- **No core changes.** The plugin runs entirely as an admin-bar overlay. The original `$wp_admin_bar` state is unchanged; the runtime decorates the rendered DOM.
-- **Performance.** Runtime JS ≤ 8 KB gzipped, runtime CSS ≤ 4 KB gzipped (CI gate). Plain ES modules, no build step, no React, no `@wordpress/*` runtime dependencies. The classifier short-circuits when the enablement filter returns false, so non-opted-in users see no overhead beyond a sub-millisecond filter check.
+- **No core changes.** The plugin runs entirely as an admin-bar overlay. It registers its own dropdown node, leaves plugin-owned original nodes in place, and decorates the rendered DOM.
+- **Performance.** Runtime JS ≤ 8 KB gzipped, runtime CSS ≤ 4 KB gzipped (CI gate). Plain JavaScript bundled with esbuild, no React, no `@wordpress/*` runtime dependencies. The classifier short-circuits when the enablement filter returns false, so non-opted-in users see no overhead beyond a sub-millisecond filter check.
 
 For the architectural details (`/src/` layout, file responsibilities, contracts), see [`docs/architecture.md`](docs/architecture.md).
 
@@ -43,9 +54,9 @@ The sibling [`WordPress/wp-admin-sidebar`](https://github.com/WordPress/wp-admin
 Bug reports, design feedback, and host-adapter questions all welcome.
 
 - **Engineering work**: GitHub Issues + PRs. Run `composer install`, `npm install`, `npm run lint`, `php tests/test-grep-no-wpcom-tokens.php` before opening a PR. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
-- **UX / design feedback / "should we…?" questions**: GitHub Discussions (once the repo moves to its final location).
+- **UX / design feedback / open design questions**: GitHub Issues with the relevant `enhancement`, `question`, or `Idea` label.
 - **Security issues**: see [`SECURITY.md`](SECURITY.md). Don't open a public issue.
-- **Host-adapter authoring**: read [`docs/host-extension-api.md`](docs/host-extension-api.md) (added in a follow-up PR), then ask in the **Host Adapters** Discussion category.
+- **Host-adapter authoring**: read [`docs/host-extension-api.md`](docs/host-extension-api.md), then open an issue with the host-specific details you need to support.
 
 ## License
 

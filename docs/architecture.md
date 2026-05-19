@@ -1,11 +1,12 @@
 # Architecture
 
-The plugin runs as a regular WordPress plugin. It does not modify
-`WP_Admin_Bar` directly. It reads the registered nodes after every
-`admin_bar_menu` callback has fired, classifies them, emits a JSON nav model
-inline as `<script type="application/json" id="wp-admin-bar-overflow-data">`,
-and (in a later phase) renders a right-side "Plugins" dropdown that
-overflowed plugin nodes mirror into.
+The plugin runs as a regular WordPress plugin. It does not patch WordPress
+core. It reads the registered admin-bar nodes after every `admin_bar_menu`
+callback has fired, classifies them, registers its own right-side **Plugins**
+dropdown, emits a JSON nav model inline as
+`<script type="application/json" id="wp-admin-bar-overflow-data">`, and runs a
+small JavaScript runtime that mirrors plugin nodes into the dropdown when
+they no longer fit.
 
 ## Classifier and renderer
 
@@ -21,11 +22,10 @@ Two layers, each with one responsibility:
 
 - **Renderer (`Admin_Bar_Overflow_Renderer` + runtime JS)** decides _which
   classified plugin nodes to mirror at which viewport_. At wide desktop
-  (≥ 1280px) nothing is mirrored. At narrow desktop (783-1279px) left-side
-  plugin nodes mirror on overflow; right-side stays inline unless
-  `top-secondary` overflows. At tablet + mobile (≤ 782px) all
-  classified-as-plugin nodes are mirrored unconditionally. The renderer
-  lands in a follow-up release; v0.1.x is read-only.
+  (≥ 1280px) nothing is mirrored. At narrow desktop (783-1279px), plugin
+  nodes that no longer fit are hidden in place and shown as mirrors in the
+  dropdown. At tablet + mobile (≤ 782px) all classified-as-plugin nodes are
+  mirrored unconditionally.
 
 Decoupling "what is plugin" from "what to mirror" lets the classifier stay
 host-agnostic and the renderer carry the viewport-policy nuance.
@@ -40,9 +40,11 @@ host-agnostic and the renderer carry the viewport-policy nuance.
    - priority PHP_INT_MAX   rare late-registration outliers
 2. action 'wp_before_admin_bar_render' fires
    - priority 10            Admin_Bar_Overflow_Classifier reads and classifies
+   - priority 20            Admin_Bar_Overflow_Renderer registers dropdown shell
    - priority PHP_INT_MAX-1 Admin_Bar_Overflow_Data_Planner emits the inline JSON
 3. WP_Admin_Bar::render() emits HTML
 4. action 'wp_after_admin_bar_render' fires
+   - runtime JS is printed after #wpadminbar exists in the document
 ```
 
 The classifier reads on `wp_before_admin_bar_render` rather than any
@@ -114,24 +116,24 @@ no `window` global is exported.
 | `wp_admin_bar_overflow_node_priority` | 100 | sort key inside the dropdown |
 | `wp_admin_bar_overflow_registry` | curated map | amend the registry in one pass |
 | `wp_admin_bar_overflow_dropdown_label` | `'Plugins'` | dropdown trigger label |
-| `wp_admin_bar_overflow_trigger_insert_before_ids` | `[ 'my-account' ]` | placement target for the trigger (consumed by the renderer in a follow-up release) |
-| `wp_admin_bar_overflow_storage` | unbound | Phase 2 storage adapter |
+| `wp_admin_bar_overflow_trigger_insert_before_ids` | `[ 'my-account' ]` | placement target for the trigger |
+| `wp_admin_bar_overflow_storage` | unbound | future customize / reorder storage adapter |
 
 See [host-extension-api.md](host-extension-api.md) for the host-adapter
 guide.
 
 ## Coexistence
 
-The plugin makes no assumptions about being the only entity touching the
-admin bar. It reads node state after every other hook callback has fired
-and never modifies existing nodes. The renderer (when it lands) will
-register a new dropdown node and run a reorder pass; both operations are
-scoped to its own ids.
+The plugin makes no assumptions about being the only entity touching the admin
+bar. It reads node state after every `admin_bar_menu` callback has fired and
+never reparents or rewrites existing plugin nodes. The renderer registers a
+new dropdown node and runs a reorder pass scoped to that node so the trigger
+can sit before the configured right-side anchor.
 
 ## Storage
 
-Phase 1 is read-only. The `Admin_Bar_Overflow_Layout_Storage` interface and
-the `Admin_Bar_Overflow_User_Meta_Storage` default implementation are
-declared at v0.1.0 so the `wp_admin_bar_overflow_storage` filter contract is
-stable from day one. Phase 2 customize / reorder swaps in a real
-implementation via the same filter.
+The current plugin does not persist user layout state. The
+`Admin_Bar_Overflow_Layout_Storage` interface and the
+`Admin_Bar_Overflow_User_Meta_Storage` default implementation are declared so
+the `wp_admin_bar_overflow_storage` filter contract can remain stable when a
+future customize / reorder feature is added.
