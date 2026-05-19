@@ -6,13 +6,32 @@
  * tweaks (trigger affordance, mirror-item spacing, placeholder hide-fallback).
  */
 
+/* Trigger box. Mirrors Core's wp-logo desktop sizing: symmetric padding
+ * with a 20-px-square `.ab-icon` child whose `::before` carries the
+ * dashicons glyph (see icons.css). Matches the natural width of adjacent
+ * icon-only items in the admin bar at desktop and avoids the off-centre
+ * appearance the previous flex centering + explicit `min-width` produced. */
 #wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
+	box-sizing: border-box;
+	padding: 0 7px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item > .ab-icon {
 	align-items: center;
 	box-sizing: border-box;
 	display: flex;
+	/* Core's generic `#wpadminbar .ab-icon` rule applies `float: left` and
+	 * `margin-right: 6px` to every icon container — present for the legacy
+	 * "icon + label" layout. Wipe both so the trigger's icon centres inside
+	 * its own padded box instead of riding the left edge with a 6 px gap
+	 * tacked on the right. wp-logo neutralises the same rule explicitly. */
+	float: none;
+	height: 32px;
 	justify-content: center;
-	min-width: 36px;
+	margin: 0;
+	padding: 0;
 	text-align: center;
+	width: 20px;
 }
 
 #wpadminbar #wp-admin-bar-overflow-plugins > .ab-item .screen-reader-text {

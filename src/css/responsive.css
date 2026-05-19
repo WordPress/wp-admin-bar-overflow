@@ -49,13 +49,20 @@
 		width: 100%;
 	}
 
-	#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
+	/* Mobile parity with Core's icon-only top-secondary items
+	 * (e.g. `my-account` without an avatar). Core scales those to a
+	 * 52 × 46 hit target and bumps the dashicons glyph to ~28-32 px; the
+	 * trigger must follow suit so it doesn't visually shrink next to the
+	 * core dashicons at this band. The 52 × 46 footprint also satisfies
+	 * WCAG 2.5.5 AAA (44 × 44). */
+	#wpadminbar #wp-admin-bar-top-secondary > #wp-admin-bar-overflow-plugins > .ab-item {
 		display: inline-flex;
 		align-items: center;
 		height: 46px;
 		justify-content: center;
 		min-height: 46px;
 		min-width: 52px;
+		padding: 0;
 		width: 52px;
 	}
 
@@ -65,6 +72,25 @@
 	 * the mobile band to match the established overflow behavior. */
 	#wpadminbar #wp-admin-bar-woocommerce-site-visibility-badge {
 		display: none !important;
+	}
+
+	/* Flex centering instead of line-height arithmetic: dashicons glyph
+	 * metrics put the baseline in the bottom half of the line box, so a
+	 * `font: 28px/46px` rule renders bottom-aligned. Flex places the
+	 * glyph dead-centre regardless of which dashicon we pick. */
+	#wpadminbar #wp-admin-bar-top-secondary > #wp-admin-bar-overflow-plugins > .ab-item > .ab-icon {
+		align-items: center;
+		display: flex;
+		float: none;
+		height: 46px;
+		justify-content: center;
+		margin: 0;
+		padding: 0;
+		width: 52px;
+	}
+
+	#wpadminbar #wp-admin-bar-top-secondary > #wp-admin-bar-overflow-plugins > .ab-item > .ab-icon::before {
+		font: 400 32px/1 dashicons, sans-serif;
 	}
 }
 

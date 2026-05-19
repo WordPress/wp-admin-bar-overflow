@@ -291,6 +291,7 @@ function buildFixtureHtml(pluginCount) {
 		<ul id="wp-admin-bar-top-secondary" class="ab-top-secondary ab-top-menu" role="none">
 			<li id="wp-admin-bar-overflow-plugins" class="menupop wp-admin-bar-overflow-trigger" role="none">
 				<a class="ab-item" href="#" onclick="return false;" role="menuitem" aria-expanded="false" aria-haspopup="menu">
+					<span class="ab-icon" aria-hidden="true"></span>
 					<span class="screen-reader-text">Plugins</span>
 				</a>
 				<div class="ab-sub-wrapper" role="none">
