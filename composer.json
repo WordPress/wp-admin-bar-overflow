@@ -1,9 +1,9 @@
 {
-	"name": "automattic/wp-admin-bar-overflow",
+	"name": "wordpress/wp-admin-bar-overflow",
 	"description": "Responsive overflow for plugin-added WordPress admin-bar nodes.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"homepage": "https://github.com/Automattic/wp-admin-bar-overflow",
+	"homepage": "https://github.com/WordPress/wp-admin-bar-overflow",
 	"require": {
 		"php": ">=8.0"
 	},

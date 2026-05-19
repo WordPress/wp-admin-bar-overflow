@@ -35,7 +35,7 @@
 			"step": "installPlugin",
 			"pluginData": {
 				"resource": "url",
-				"url": "https://github.com/Automattic/wp-admin-bar-overflow/releases/latest/download/wp-admin-bar-overflow.zip"
+				"url": "https://github.com/WordPress/wp-admin-bar-overflow/releases/download/v0.1.0-alpha.1/wp-admin-bar-overflow.zip"
 			},
 			"options": { "activate": true }
 		}
