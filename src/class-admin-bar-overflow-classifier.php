@@ -9,10 +9,10 @@
  * downstream data planner reads the cached model at
  * `wp_before_admin_bar_render` priority `PHP_INT_MAX - 1`.
  *
- * Scope: parentless nodes plus nodes whose parent is `top-secondary`. The
- * classifier ignores grouped / nested nodes that live further down the tree;
- * those reach the renderer via `submenuChildren` references on their
- * top-level parent.
+ * Scope: left-side top-level nodes, including parentless and `root-default`
+ * nodes, plus nodes whose parent is `top-secondary`. The classifier ignores
+ * nested nodes that live further down the tree; those reach the renderer via
+ * `submenuChildren` references on their top-level parent.
  *
  * Contract reference: `03-contracts.md` § 1 (ClassificationEntry), § 2
  * (NavModel), § 3 (filter signatures).
@@ -155,17 +155,21 @@ class Admin_Bar_Overflow_Classifier {
 			return null;
 		}
 
-		// Skip group containers — they are not user-facing nodes. Core
-		// registers `top-secondary` (and friends) via `add_group()` with
-		// `group = true`; classifying them would (a) inflate plugin counts
-		// and (b) cause the runtime to add the hide class to the entire
-		// right-side group container at ≤ 782px.
-		if ( isset( $node->group ) && $node->group ) {
+		$parent = isset( $node->parent ) ? (string) $node->parent : '';
+		if ( ! in_array( $parent, array( '', 'root-default', 'top-secondary' ), true ) ) {
 			return null;
 		}
 
-		$parent = isset( $node->parent ) ? (string) $node->parent : '';
-		if ( '' !== $parent && 'top-secondary' !== $parent ) {
+		$title_raw = isset( $node->title ) ? (string) $node->title : '';
+		$title     = wp_strip_all_tags( $title_raw );
+		$href      = isset( $node->href ) ? (string) $node->href : '';
+
+		// Skip structural group containers. Core registers `root-default`,
+		// `top-secondary`, and friends with `group = true`; classifying
+		// those would inflate plugin counts or hide an entire group. Some
+		// plugins also register visible top-level toolbar entries as groups,
+		// so only empty, non-linking groups are treated as structural.
+		if ( isset( $node->group ) && $node->group && '' === $title && '' === $href ) {
 			return null;
 		}
 
@@ -194,8 +198,6 @@ class Admin_Bar_Overflow_Classifier {
 		$default_priority = isset( $entry['priority'] ) ? (int) $entry['priority'] : 100;
 		$priority         = (int) apply_filters( 'wp_admin_bar_overflow_node_priority', $default_priority, $raw_id, $node );
 
-		$title_raw = isset( $node->title ) ? (string) $node->title : '';
-		$title     = wp_strip_all_tags( $title_raw );
 		$canonical = $entry['labels']['canonical'] ?? null;
 		if ( null === $canonical && '' !== $title ) {
 			$canonical = $title;
@@ -221,13 +223,11 @@ class Admin_Bar_Overflow_Classifier {
 			}
 		}
 
-		$href = isset( $node->href ) ? (string) $node->href : '';
-
 		return array(
 			'nodeId'          => 'wp-admin-bar-' . $raw_id,
 			'rawId'           => $raw_id,
 			'class'           => $class,
-			'parent'          => '' === $parent ? null : 'wp-admin-bar-' . $parent,
+			'parent'          => '' === $parent || 'root-default' === $parent ? null : 'wp-admin-bar-' . $parent,
 			'priority'        => $priority,
 			'labels'          => array(
 				'canonical'     => $canonical,

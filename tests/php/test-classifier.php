@@ -414,9 +414,9 @@ final class Admin_Bar_Overflow_Classifier_Test extends TestCase {
 	// ─── Group filter ─────────────────────────────────────────────────────
 
 	public function test_classifier_skips_group_container_nodes(): void {
-		// Core registers `top-secondary` via `add_group()`; classifying it
-		// would mark the whole right-side container as a plugin node and
-		// hide the trigger itself at ≤ 782px.
+		// Core registers structural groups via `add_group()`; classifying
+		// those would mark an entire container as a plugin node and hide it
+		// at ≤ 782px.
 		$this->bar()->add_node(
 			array(
 				'id'    => 'top-secondary',
@@ -435,6 +435,42 @@ final class Admin_Bar_Overflow_Classifier_Test extends TestCase {
 
 		$this->assertContains( 'wp-logo', $ids );
 		$this->assertNotContains( 'top-secondary', $ids );
+	}
+
+	public function test_classifier_includes_root_default_top_level_plugin_nodes(): void {
+		$this->bar()->add_node(
+			array(
+				'id'     => 'updraft_admin_node',
+				'parent' => 'root-default',
+				'title'  => 'UpdraftPlus',
+			)
+		);
+
+		Admin_Bar_Overflow_Classifier::read_and_classify();
+		$model = Admin_Bar_Overflow_Classifier::get_nav_model();
+
+		$entry = $this->find_entry( $model, 'updraft_admin_node' );
+		$this->assertSame( 'plugin', $entry['class'] );
+		$this->assertNull( $entry['parent'] );
+		$this->assertSame( 'UpdraftPlus', $entry['labels']['canonical'] );
+	}
+
+	public function test_classifier_includes_visible_plugin_group_nodes(): void {
+		$this->bar()->add_node(
+			array(
+				'id'     => 'litespeed-menu',
+				'parent' => 'root-default',
+				'title'  => 'LiteSpeed',
+				'group'  => true,
+			)
+		);
+
+		Admin_Bar_Overflow_Classifier::read_and_classify();
+		$model = Admin_Bar_Overflow_Classifier::get_nav_model();
+
+		$entry = $this->find_entry( $model, 'litespeed-menu' );
+		$this->assertSame( 'plugin', $entry['class'] );
+		$this->assertNull( $entry['parent'] );
 	}
 
 	// ─── Scope filter ─────────────────────────────────────────────────────
