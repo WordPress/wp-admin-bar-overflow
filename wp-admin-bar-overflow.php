@@ -3,7 +3,7 @@
  * Plugin Name:       WP Admin Bar Overflow
  * Plugin URI:        https://github.com/WordPress/wp-admin-bar-overflow
  * Description:       Responsive overflow for plugin-added WordPress admin-bar nodes. Plugin nodes that don't fit at narrow viewports overflow into a right-side Plugins dropdown; on tablet and mobile, all plugin nodes group under the dropdown unconditionally. The original DOM nodes stay in place at their registered positions and click events forward to them, so plugin JavaScript that binds to specific node IDs continues to work. Per-user opt-in via the `wp_admin_bar_overflow_enabled` filter; activating the plugin is the opt-in signal on plain WordPress installs.
- * Version:           0.1.0-alpha.3
+ * Version:           0.1.0
  * Requires at least: 6.5
  * Requires PHP:      8.0
  * Author:            Christos Koumenides, Lucas Mendes
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Constants.
-define( 'WP_ADMIN_BAR_OVERFLOW_VERSION', '0.1.0-alpha.3' );
+define( 'WP_ADMIN_BAR_OVERFLOW_VERSION', '0.1.0' );
 define( 'WP_ADMIN_BAR_OVERFLOW_FILE', __FILE__ );
 define( 'WP_ADMIN_BAR_OVERFLOW_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WP_ADMIN_BAR_OVERFLOW_URL', plugin_dir_url( __FILE__ ) );
