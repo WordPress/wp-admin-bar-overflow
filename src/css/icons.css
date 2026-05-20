@@ -17,3 +17,12 @@
 	height: 20px;
 	width: 20px;
 }
+
+@media (max-width: 782px) {
+	#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item::before {
+		font-size: 32px;
+		height: 32px;
+		line-height: 32px;
+		width: 32px;
+	}
+}
