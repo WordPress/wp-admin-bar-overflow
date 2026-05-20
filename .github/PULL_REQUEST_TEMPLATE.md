@@ -1,10 +1,12 @@
+<!-- Fixes #123, Closes #123, or Part of #123. Keep issue/project linkage at the top. -->
+
 ## Summary
+
+<!-- Briefly describe what changed and why. -->
 
 ### Media
 
 <!-- Add screenshots or screencasts for visual changes. Use "Not applicable" for non-visual changes. -->
-
-<!-- Briefly describe what changed and why. Reference related issues, for example: Fixes #123. -->
 
 ## Problem
 
@@ -22,11 +24,16 @@
 
 <!-- Mark completed checks before requesting review. Remove items that do not apply. -->
 
+### Automated tests
+
 - [ ] `composer test`
 - [ ] `composer lint`
 - [ ] `npm test`
 - [ ] `npm run lint`
 - [ ] `npm run build:size`
+
+### Manual and visual tests
+
 - [ ] Manual browser verification:
 
 ## Follow-up
