@@ -6,8 +6,8 @@
  * point. The runtime adds `.wp-admin-bar-overflow-classified-plugin-node`
  * to each plugin-classified original at first paint.
  *
- * Mobile (≤ 600px): touch-target sizing for the dropdown trigger per
- * WCAG 2.5.5 AAA (44 × 44 CSS px).
+ * The trigger uses Core's mobile admin-bar dimensions at the same breakpoint
+ * so the plug affordance matches neighboring toolbar controls.
  */
 
 @media (max-width: 782px) {
@@ -48,6 +48,16 @@
 		box-sizing: border-box;
 		width: 100%;
 	}
+
+	#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
+		display: inline-flex;
+		align-items: center;
+		height: 46px;
+		justify-content: center;
+		min-height: 46px;
+		min-width: 52px;
+		width: 52px;
+	}
 }
 
 @media (min-width: 783px) and (max-width: 1279px) {
@@ -76,15 +86,5 @@
 	 * needed, so hide the dropdown trigger itself. */
 	#wpadminbar #wp-admin-bar-overflow-plugins {
 		display: none;
-	}
-}
-
-@media (max-width: 600px) {
-	#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item {
-		min-height: 44px;
-		min-width: 44px;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
 	}
 }

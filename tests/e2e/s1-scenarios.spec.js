@@ -129,7 +129,7 @@ test.describe('A.1 S1.x scenarios', () => {
 		);
 	});
 
-	test('S1.9 at ≤ 600px all plugin-classified originals are hidden; trigger reachable + ≥ 44px tap target', async ({ page }) => {
+	test('S1.9 at ≤ 600px all plugin-classified originals are hidden; trigger matches the mobile admin bar', async ({ page }) => {
 		await page.setViewportSize({ width: 400, height: 800 });
 		await page.goto(`${baseUrl()}/wp-admin/`, { waitUntil: 'networkidle' });
 		await page.waitForFunction(() => !!document.getElementById('wp-admin-bar-overflow-plugins'));
@@ -140,11 +140,15 @@ test.describe('A.1 S1.x scenarios', () => {
 			const trigger = document.getElementById('wp-admin-bar-overflow-plugins');
 			const triggerAnchor = trigger?.querySelector('a.ab-item');
 			const anchorRect = triggerAnchor?.getBoundingClientRect();
+			const iconStyle = triggerAnchor ? getComputedStyle(triggerAnchor, '::before') : null;
 			return {
 				originals,
 				triggerDisplay: trigger ? getComputedStyle(trigger).display : null,
 				anchorWidth: anchorRect?.width ?? 0,
 				anchorHeight: anchorRect?.height ?? 0,
+				iconFontSize: iconStyle ? parseFloat(iconStyle.fontSize) : 0,
+				iconWidth: iconStyle ? parseFloat(iconStyle.width) : 0,
+				iconHeight: iconStyle ? parseFloat(iconStyle.height) : 0,
 			};
 		});
 
@@ -153,7 +157,10 @@ test.describe('A.1 S1.x scenarios', () => {
 			expect(o.offsetWidth).toBe(0);
 		}
 		expect(snapshot.triggerDisplay).not.toBe('none');
-		expect(snapshot.anchorWidth).toBeGreaterThanOrEqual(44);
-		expect(snapshot.anchorHeight).toBeGreaterThanOrEqual(44);
+		expect(snapshot.anchorWidth).toBeGreaterThanOrEqual(52);
+		expect(snapshot.anchorHeight).toBeGreaterThanOrEqual(46);
+		expect(snapshot.iconFontSize).toBe(32);
+		expect(snapshot.iconWidth).toBe(32);
+		expect(snapshot.iconHeight).toBe(32);
 	});
 });

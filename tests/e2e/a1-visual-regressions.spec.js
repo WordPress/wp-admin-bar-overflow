@@ -122,6 +122,29 @@ test.describe('A.1 visual regressions', () => {
 		expect(panel.mirrorCount).toBe(30);
 	});
 
+	test('S1.32b sizes the mobile trigger like Core admin-bar controls', async ({ page }) => {
+		await loadFixture(page, { width: 492, height: 745, pluginCount: 30 });
+
+		const trigger = await page.evaluate(() => {
+			const anchor = document.querySelector('#wp-admin-bar-overflow-plugins > a.ab-item');
+			const rect = anchor.getBoundingClientRect();
+			const iconStyle = getComputedStyle(anchor, '::before');
+			return {
+				width: rect.width,
+				height: rect.height,
+				iconFontSize: parseFloat(iconStyle.fontSize),
+				iconWidth: parseFloat(iconStyle.width),
+				iconHeight: parseFloat(iconStyle.height),
+			};
+		});
+
+		expect(trigger.width).toBeGreaterThanOrEqual(52);
+		expect(trigger.height).toBeGreaterThanOrEqual(46);
+		expect(trigger.iconFontSize).toBe(32);
+		expect(trigger.iconWidth).toBe(32);
+		expect(trigger.iconHeight).toBe(32);
+	});
+
 	test('S1.33 gives icon-only mirrors visible labels and aligned rows', async ({ page }) => {
 		await loadFixture(page, { width: 741, height: 745, pluginCount: 12 });
 		await page.locator('#wp-admin-bar-overflow-plugins > a.ab-item').click();
