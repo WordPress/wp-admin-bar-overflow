@@ -1,28 +1,35 @@
-<!-- Fixes #123, Closes #123, or Part of #123. Keep issue/project linkage at the top. -->
+<!--
+Link a related issue to this PR. Use "Fixes #123" when the PR fully resolves
+the issue. Use "Part of #123" when follow-up work is still needed.
+-->
 
-## Summary
+Related to #
 
-<!-- Briefly describe what changed and why. -->
+## Proposed changes
+
+<!-- Briefly describe what changed. -->
+
+*
 
 ### Media
 
 <!-- Add screenshots or screencasts for visual changes. Use "Not applicable" for non-visual changes. -->
 
-## Problem
+## Why are these changes being made?
+<!--
+It's easy to see what a PR does but much harder to find out why it was made,
+particularly when researching old changes in history. Record an explanation of
+the motivation behind this change and how it will help.
+-->
 
-<!-- Describe the user-visible issue, regression, or maintenance problem this PR addresses. -->
+*
 
-## Root cause
+## Testing instructions
 
-<!-- Explain the underlying cause at a useful level for reviewers. Keep it concrete. -->
-
-## Fix
-
-<!-- Describe the implementation approach and call out any important tradeoffs or non-obvious behavior. -->
-
-## Test plan
-
-<!-- Mark completed checks before requesting review. Remove items that do not apply. -->
+<!--
+Add as many details as possible to help others reproduce the issue and test the fix.
+"Before / After" screenshots can also be very helpful when the change is visual.
+-->
 
 ### Automated tests
 
@@ -35,7 +42,3 @@
 ### Manual and visual tests
 
 - [ ] Manual browser verification:
-
-## Follow-up
-
-<!-- Note any release, vendoring, docs, accessibility, or design follow-up. Use "None" if there is no follow-up. -->
