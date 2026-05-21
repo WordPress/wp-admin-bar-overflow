@@ -219,13 +219,34 @@ function buildFixtureHtml(fillerCount) {
 }
 
 function buildNavNodes(fillerCount) {
-	const nodes = [];
+	const nodes = [
+		coreNode('wp-logo', 'WordPress'),
+		coreNode('site-name', 'Fixture Site With A Longer Name'),
+		coreNode('comments', '0'),
+		coreNode('new-content', 'New'),
+		coreNode('my-account', 'Howdy, demo', 'top-secondary'),
+	];
 	for (let i = 1; i <= fillerCount; i++) {
 		nodes.push(pluginNode(`filler-${i}`, `Filler Plugin ${i}`, i));
 	}
 	nodes.push(pluginNode('nested-root-menu', 'Nested Root Menu', 200));
 	nodes.push(pluginNode('secondary-nested-menu', 'Secondary Nested Menu', 210, 'top-secondary'));
 	return nodes;
+}
+
+function coreNode(rawId, canonical, parent = null) {
+	return {
+		nodeId: `wp-admin-bar-${rawId}`,
+		rawId,
+		class: 'core',
+		parent,
+		priority: 0,
+		labels: { canonical, screen_reader: null },
+		icon: { kind: 'none', ref: null },
+		badge: { text: null, attention: false },
+		href: '#',
+		submenuChildren: [],
+	};
 }
 
 function pluginNode(rawId, canonical, priority, parent = null) {
