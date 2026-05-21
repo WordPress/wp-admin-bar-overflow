@@ -58,6 +58,14 @@
 		min-width: 52px;
 		width: 52px;
 	}
+
+	/* Host-essential nodes classified as `'skip'` in the default registry
+	 * never receive the runtime's `classified-plugin-node` class, so the
+	 * generic hide rule above doesn't cover them. Hide them explicitly at
+	 * the mobile band to match the established overflow behavior. */
+	#wpadminbar #wp-admin-bar-woocommerce-site-visibility-badge {
+		display: none !important;
+	}
 }
 
 @media (min-width: 783px) and (max-width: 1279px) {

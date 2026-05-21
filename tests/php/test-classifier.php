@@ -385,6 +385,32 @@ final class Admin_Bar_Overflow_Classifier_Test extends TestCase {
 		);
 	}
 
+	public function test_default_registry_skips_woocommerce_site_visibility_badge(): void {
+		// The WooCommerce site-visibility badge is host-essential UI and
+		// should not be overflow-managed. The default registry classifies
+		// it as `'skip'` so the classifier omits it from the nav model
+		// entirely — the runtime then never enrolls it, leaving it inline
+		// at every viewport above the mobile band.
+		$this->bar()->add_node(
+			array(
+				'id'    => 'wp-logo',
+				'title' => 'WP',
+			)
+		);
+		$this->bar()->add_node(
+			array(
+				'id'    => 'woocommerce-site-visibility-badge',
+				'title' => 'Store coming soon',
+			)
+		);
+
+		Admin_Bar_Overflow_Classifier::read_and_classify();
+		$ids = array_column( Admin_Bar_Overflow_Classifier::get_nav_model()['nodes'], 'rawId' );
+
+		$this->assertContains( 'wp-logo', $ids );
+		$this->assertNotContains( 'woocommerce-site-visibility-badge', $ids );
+	}
+
 	// ─── Group filter ─────────────────────────────────────────────────────
 
 	public function test_classifier_skips_group_container_nodes(): void {
