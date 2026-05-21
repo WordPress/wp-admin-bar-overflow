@@ -102,22 +102,7 @@ export function buildMirror(original, entry) {
 	stripRuntimeHideClasses(clone);
 	clone.classList.add(MIRROR_CLASS);
 	applyIconOnlyLabelTreatment(clone, entry);
-	// The mirror `<li>` is a direct child of `<ul role="menu">` (Core's
-	// `_render_group` emits `role="menu"` on the submenu UL). A bare
-	// `<li>` carries an implicit `listitem` role, which is not one of
-	// `menu`'s allowed children — axe flags it. `role="none"` makes the
-	// `<li>` transparent so the `<a role="menuitem">` inside is the
-	// effective child.
-	clone.setAttribute('role', 'none');
-	// Some plugins do not stamp `role="menuitem"` on their admin-bar
-	// anchor (Query Monitor for example). When `<li role="none">`
-	// passes through, the next effective child is the `<a>` itself —
-	// it must carry `role="menuitem"` or axe flags `aria-required-children`
-	// on the enclosing `<ul role="menu">`.
-	const mirrorAnchor = clone.querySelector(':scope > a.ab-item');
-	if (mirrorAnchor && !mirrorAnchor.hasAttribute('role')) {
-		mirrorAnchor.setAttribute('role', 'menuitem');
-	}
+	normalizeMirrorRoles(clone);
 	return clone;
 }
 
@@ -140,6 +125,18 @@ function stripRuntimeHideClasses(clone) {
 	for (let i = 0; i < all.length; i++) {
 		for (let j = 0; j < RUNTIME_HIDE_CLASSES.length; j++) {
 			all[i].classList.remove(RUNTIME_HIDE_CLASSES[j]);
+		}
+	}
+}
+
+function normalizeMirrorRoles(clone) {
+	const items = [clone].concat(Array.from(clone.querySelectorAll('li')));
+	for (let i = 0; i < items.length; i++) {
+		const item = items[i];
+		item.setAttribute('role', 'none');
+		const directItem = Array.from(item.children).find((child) => child.matches('a.ab-item, div.ab-item'));
+		if (directItem && !directItem.hasAttribute('role')) {
+			directItem.setAttribute('role', 'menuitem');
 		}
 	}
 }

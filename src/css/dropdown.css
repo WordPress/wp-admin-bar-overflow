@@ -147,6 +147,87 @@
 	width: 18px;
 }
 
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper {
+	background: transparent;
+	box-shadow: none;
+	display: block;
+	min-width: 0;
+	position: static;
+	width: 100%;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu {
+	background: transparent;
+	box-sizing: border-box;
+	min-width: 0;
+	width: 100%;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li {
+	box-sizing: border-box;
+	display: block;
+	float: none;
+	position: relative;
+	width: 100%;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item {
+	align-items: center;
+	box-sizing: border-box;
+	color: rgb(240 246 252 / 70%);
+	display: flex;
+	gap: 6px;
+	line-height: 20px;
+	min-height: 32px;
+	overflow-wrap: anywhere;
+	padding: 6px 10px 6px 32px;
+	white-space: normal;
+	width: 100%;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .ab-icon,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .dashicons,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > [id$="-ab-icon"] {
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	background-size: 18px 18px !important;
+	box-sizing: border-box;
+	color: inherit !important;
+	flex: 0 0 18px;
+	height: 18px;
+	line-height: 18px;
+	margin: 0;
+	min-width: 18px;
+	padding: 0;
+	width: 18px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .ab-icon::before,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .dashicons::before {
+	color: inherit !important;
+	display: block;
+	font-size: 18px;
+	height: 18px;
+	line-height: 18px;
+	width: 18px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item .wp-ui-notification {
+	align-self: center;
+	align-items: center;
+	border-radius: 9999px;
+	box-sizing: border-box;
+	display: inline-flex;
+	flex: 0 0 auto;
+	height: 18px;
+	justify-content: center;
+	line-height: 18px;
+	margin-left: auto;
+	min-width: 18px;
+	padding: 0 4px !important;
+	position: static;
+}
+
 /* Placeholder hide fallback. The renderer also emits an inline rule so the
  * placeholder is hidden before the bundle loads. This selector mirrors that
  * rule so themes that ship a stricter CSP and block inline styles still
