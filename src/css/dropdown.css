@@ -108,10 +108,6 @@
 	width: 16px;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].wp-admin-bar-overflow-has-badge > .ab-item > .wp-admin-bar-arrow {
-	margin-left: 0;
-}
-
 #wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of] > .ab-item > .wp-admin-bar-arrow::before {
 	content: "\f139";
 	font-family: dashicons, sans-serif;
@@ -136,7 +132,7 @@
 	clip: auto;
 	clip-path: none;
 	color: inherit !important;
-	flex: 1 1 auto;
+	flex: 0 1 auto;
 	height: auto;
 	line-height: 20px;
 	margin: 0;
@@ -158,7 +154,6 @@
 	height: 18px;
 	justify-content: center;
 	line-height: 18px;
-	margin-left: auto;
 	min-width: 18px;
 	padding: 0 !important;
 	position: static;
@@ -214,7 +209,7 @@
 	clip: auto;
 	clip-path: none;
 	color: inherit !important;
-	flex: 1 1 auto;
+	flex: 0 1 auto;
 	height: auto;
 	line-height: 20px;
 	margin: 0;
@@ -235,10 +230,21 @@
 	height: 18px;
 	justify-content: center;
 	line-height: 18px;
-	margin-left: auto;
 	min-width: 18px;
 	padding: 0 4px !important;
 	position: static;
+}
+
+/* WP Mail SMTP (and lookalike plugins) inject their badge with a hardcoded
+ * `margin: 7px 0 0 2px !important` + `vertical-align: top !important` so it
+ * lines up inside Core's 32 px-tall top admin bar. Inside our flex-laid
+ * dropdown rows (`align-items: center`, ~36 px tall), the 7 px top margin
+ * shoves the "!" below center and `vertical-align: top` would too if the
+ * row weren't flex. Zero both so the row's own centering wins. */
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror .wp-mail-smtp-admin-bar-menu-error,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror .wp-mail-smtp-admin-bar-menu-notification-counter {
+	margin: 0 !important;
+	vertical-align: middle !important;
 }
 
 /* Hover / focus highlight for dropdown rows and nested submenu rows.
