@@ -93,6 +93,12 @@ function addRuntimePluginEntries(navModel) {
 			knownNodeIds.add(nodes[i].nodeId);
 		}
 	}
+	const skipNodeIds = Array.isArray(navModel.skipNodeIds) ? navModel.skipNodeIds : [];
+	for (let i = 0; i < skipNodeIds.length; i++) {
+		if (typeof skipNodeIds[i] === 'string') {
+			knownNodeIds.add(skipNodeIds[i]);
+		}
+	}
 
 	const additions = [];
 	const parents = [

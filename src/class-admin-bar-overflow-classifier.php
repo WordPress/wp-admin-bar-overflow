@@ -61,9 +61,10 @@ class Admin_Bar_Overflow_Classifier {
 		$registry = wp_admin_bar_overflow_default_registry();
 		$registry = (array) apply_filters( 'wp_admin_bar_overflow_registry', $registry );
 
-		$entries = array();
+		$entries          = array();
+		$skipped_node_ids = array();
 		foreach ( $nodes as $node ) {
-			$entry = self::classify_node( $node, $registry, $nodes );
+			$entry = self::classify_node( $node, $registry, $nodes, $skipped_node_ids );
 			if ( null === $entry ) {
 				continue;
 			}
@@ -86,6 +87,7 @@ class Admin_Bar_Overflow_Classifier {
 			'version'     => 1,
 			'enabled'     => true,
 			'nodes'       => $entries,
+			'skipNodeIds' => array_values( array_unique( $skipped_node_ids ) ),
 			'dropdown'    => array(
 				'id'           => 'overflow-plugins',
 				'label'        => $label,
@@ -144,8 +146,9 @@ class Admin_Bar_Overflow_Classifier {
 	 * @param object $node       The `WP_Admin_Bar` node object.
 	 * @param array  $registry   Active classification registry.
 	 * @param array  $all_nodes  Full node map (used to compute submenuChildren).
+	 * @param array  $skipped_node_ids Top-level node ids classified as `'skip'`.
 	 */
-	private static function classify_node( $node, array $registry, array $all_nodes ): ?array {
+	private static function classify_node( $node, array $registry, array $all_nodes, array &$skipped_node_ids ): ?array {
 		if ( ! is_object( $node ) ) {
 			return null;
 		}
@@ -192,6 +195,7 @@ class Admin_Bar_Overflow_Classifier {
 		}
 
 		if ( 'skip' === $class ) {
+			$skipped_node_ids[] = 'wp-admin-bar-' . $raw_id;
 			return null;
 		}
 

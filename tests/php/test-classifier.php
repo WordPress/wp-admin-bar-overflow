@@ -60,6 +60,7 @@ final class Admin_Bar_Overflow_Classifier_Test extends TestCase {
 		$this->assertSame( 1, $model['version'] );
 		$this->assertTrue( $model['enabled'] );
 		$this->assertSame( array(), $model['nodes'] );
+		$this->assertSame( array(), $model['skipNodeIds'] );
 		$this->assertSame( 'overflow-plugins', $model['dropdown']['id'] );
 	}
 
@@ -409,6 +410,10 @@ final class Admin_Bar_Overflow_Classifier_Test extends TestCase {
 
 		$this->assertContains( 'wp-logo', $ids );
 		$this->assertNotContains( 'woocommerce-site-visibility-badge', $ids );
+		$this->assertSame(
+			array( 'wp-admin-bar-woocommerce-site-visibility-badge' ),
+			Admin_Bar_Overflow_Classifier::get_nav_model()['skipNodeIds']
+		);
 	}
 
 	// ─── Group filter ─────────────────────────────────────────────────────

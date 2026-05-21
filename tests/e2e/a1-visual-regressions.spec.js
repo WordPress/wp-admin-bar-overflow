@@ -158,11 +158,10 @@ test.describe('A.1 visual regressions', () => {
 	});
 
 	test('S1.37 discovers DOM-only top-level plugin nodes before visual cutoff', async ({ page }) => {
-		await loadFixture(page, { width: 783, pluginCount: 7, variant: 'dom-only-extra' });
+		await loadFixture(page, { width: 783, pluginCount: 6, variant: 'dom-only-extra' });
 
 		const state = await page.evaluate(() => {
 			const pluginOrder = [
-				'wp-admin-bar-woocommerce-site-visibility-badge',
 				'wp-admin-bar-wpseo-menu',
 				'wp-admin-bar-autoptimize',
 				'wp-admin-bar-query-monitor',
@@ -189,10 +188,18 @@ test.describe('A.1 visual regressions', () => {
 				inlineThenHidden: inlineIds.concat(hiddenIds),
 				pluginOrder,
 				shownMirrorOriginalIds,
+				wooClassified: document
+					.getElementById('wp-admin-bar-woocommerce-site-visibility-badge')
+					.classList.contains('wp-admin-bar-overflow-classified-plugin-node'),
+				wooMirrorExists: !!document.querySelector(
+					'#wp-admin-bar-overflow-plugins-default > [data-mirror-of="wp-admin-bar-woocommerce-site-visibility-badge"]'
+				),
 			};
 		});
 
 		expect(state.classifiedIds).toEqual(expect.arrayContaining(['wp-admin-bar-litespeed-menu', 'wp-admin-bar-updraft_admin_node']));
+		expect(state.wooClassified).toBe(false);
+		expect(state.wooMirrorExists).toBe(false);
 		expect(state.hiddenIds).toContain('wp-admin-bar-updraft_admin_node');
 		expect(state.shownMirrorOriginalIds[0]).toBe('wp-admin-bar-updraft_admin_node');
 		expect(state.shownMirrorOriginalIds.indexOf('wp-admin-bar-updraft_admin_node')).toBeLessThan(
@@ -451,8 +458,10 @@ function buildFixtureHtml(pluginCount, variant = 'default') {
 <script type="application/json" id="wp-admin-bar-overflow-data">${JSON.stringify({
 	version: 1,
 	enabled: true,
-	nodes,
-	dropdown: { id: 'overflow-plugins', label: 'Plugins', emptyMessage: '' },
+		nodes,
+		skipNodeIds:
+			variant === 'dom-only-extra' ? ['wp-admin-bar-woocommerce-site-visibility-badge'] : [],
+		dropdown: { id: 'overflow-plugins', label: 'Plugins', emptyMessage: '' },
 	breakpoints: { narrowDesktop: 1280, tablet: 782, mobile: 600 },
 	flags: { debug: false },
 })}</script>
@@ -468,7 +477,6 @@ function buildNavNodes(pluginCount, variant = 'default') {
 	}
 	if (variant === 'dom-only-extra') {
 		return coreNodes.concat([
-			pluginNode('woocommerce-site-visibility-badge', 'Store coming soon', 100),
 			pluginNode('wpseo-menu', 'Yoast SEO', 110),
 			pluginNode('autoptimize', 'Autoptimize', 100),
 			pluginNode('query-monitor', 'Query Monitor', 100),
