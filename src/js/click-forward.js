@@ -21,6 +21,7 @@
  */
 
 const TRIGGER_HTML_ID = 'wp-admin-bar-overflow-plugins';
+const PLUGINS_GROUP_HTML_ID = 'wp-admin-bar-overflow-plugins-default';
 
 export function setupClickForward(bar) {
 	const trigger = document.getElementById(TRIGGER_HTML_ID);
@@ -46,6 +47,13 @@ export function setupClickForward(bar) {
 		if (!target || !target.closest) return;
 		const mirror = target.closest('[data-mirror-of]');
 		if (!mirror) return;
+
+		if (shouldToggleMirrorSubmenu(mirror, target)) {
+			event.preventDefault();
+			toggleMirrorSubmenu(mirror);
+			return;
+		}
+
 		const originalId = mirror.getAttribute('data-mirror-of');
 		if (!originalId) return;
 		const original = document.getElementById(originalId);
@@ -54,4 +62,56 @@ export function setupClickForward(bar) {
 		const originalAnchor = original.querySelector('a,button');
 		if (originalAnchor) originalAnchor.click();
 	});
+}
+
+function shouldToggleMirrorSubmenu(mirror, target) {
+	const directItem = directMenuItem(mirror);
+	if (!directItem || !directItem.contains(target)) return false;
+	return Boolean(directSubmenu(mirror));
+}
+
+function toggleMirrorSubmenu(mirror) {
+	const wasOpen = mirror.classList.contains('hover');
+	const group = document.getElementById(PLUGINS_GROUP_HTML_ID);
+	if (group) {
+		const openMenus = group.querySelectorAll('[data-mirror-of].menupop.hover');
+		for (let i = 0; i < openMenus.length; i++) {
+			if (openMenus[i] !== mirror) {
+				setMirrorSubmenuOpen(openMenus[i], false);
+			}
+		}
+	}
+	setMirrorSubmenuOpen(mirror, !wasOpen);
+}
+
+function setMirrorSubmenuOpen(mirror, open) {
+	if (open) {
+		mirror.classList.add('hover');
+	} else {
+		mirror.classList.remove('hover');
+	}
+	const item = directMenuItem(mirror);
+	if (item && item.hasAttribute('aria-expanded')) {
+		item.setAttribute('aria-expanded', open ? 'true' : 'false');
+	}
+}
+
+function directMenuItem(mirror) {
+	const children = Array.from(mirror.children || []);
+	for (let i = 0; i < children.length; i++) {
+		if (children[i].matches('a.ab-item, div.ab-item')) {
+			return children[i];
+		}
+	}
+	return null;
+}
+
+function directSubmenu(mirror) {
+	const children = Array.from(mirror.children || []);
+	for (let i = 0; i < children.length; i++) {
+		if (children[i].matches('.ab-sub-wrapper')) {
+			return children[i];
+		}
+	}
+	return null;
 }

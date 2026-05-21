@@ -138,7 +138,25 @@ function normalizeMirrorRoles(clone) {
 		if (directItem && !directItem.hasAttribute('role')) {
 			directItem.setAttribute('role', 'menuitem');
 		}
+		if (directItem && hasDirectSubmenu(item)) {
+			if (!directItem.hasAttribute('aria-haspopup')) {
+				directItem.setAttribute('aria-haspopup', 'menu');
+			}
+			if (!directItem.hasAttribute('aria-expanded')) {
+				directItem.setAttribute('aria-expanded', 'false');
+			}
+		}
 	}
+}
+
+function hasDirectSubmenu(item) {
+	const children = Array.from(item.children || []);
+	for (let i = 0; i < children.length; i++) {
+		if (children[i].matches('.ab-sub-wrapper')) {
+			return true;
+		}
+	}
+	return false;
 }
 
 function applyIconOnlyLabelTreatment(clone, entry) {

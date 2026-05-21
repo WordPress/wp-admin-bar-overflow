@@ -32,20 +32,32 @@ test.beforeAll(async () => {
 });
 
 test.describe('plugin submenu mirrors', () => {
-	test('S1.38 renders submenu children as contained mobile rows and forwards child clicks', async ({ page }) => {
-		await loadSubmenuFixture(page, { width: 500, height: 360, fillerCount: 18 });
+	test('S1.38 keeps mobile submenu children collapsed until their parent mirror opens', async ({ page }) => {
+		await loadSubmenuFixture(page, { width: 500, height: 360, fillerCount: 4 });
 		await openDropdown(page);
 
+		const root = page.locator('#wp-admin-bar-mirror-nested-root-menu');
+		const rootAnchor = root.locator('> a.ab-item');
 		const clickChild = page.locator('#wp-admin-bar-mirror-nested-click-child > a.ab-item');
-		await clickChild.scrollIntoViewIfNeeded();
-		await clickChild.focus();
+		const secondaryChild = page.locator('#wp-admin-bar-mirror-secondary-settings-child > a.ab-item');
+
+		await expect(clickChild).toBeHidden();
+		await expect(secondaryChild).toBeHidden();
+
+		await rootAnchor.click();
+		await expect(root).toHaveClass(/(^| )hover( |$)/);
+		await expect(rootAnchor).toHaveAttribute('aria-expanded', 'true');
+		await expect(clickChild).toBeVisible();
+		await expect(secondaryChild).toBeHidden();
 
 		const state = await page.evaluate(() => {
 			const panel = document.querySelector('#wp-admin-bar-overflow-plugins > .ab-sub-wrapper');
 			const rootWrapper = document.querySelector('#wp-admin-bar-mirror-nested-root-menu > .ab-sub-wrapper');
 			const clickRow = document.querySelector('#wp-admin-bar-mirror-nested-click-child > a.ab-item');
+			const iconChildLabel = document.querySelector('#wp-admin-bar-mirror-nested-badge-child .ab-label');
 			const panelRect = panel.getBoundingClientRect();
 			const clickRect = clickRow.getBoundingClientRect();
+			const labelRect = iconChildLabel.getBoundingClientRect();
 			const visible = (id) => {
 				const el = document.getElementById(id);
 				if (!el) return false;
@@ -54,34 +66,38 @@ test.describe('plugin submenu mirrors', () => {
 			};
 
 			return {
-				activeClickChild: document.activeElement === clickRow,
-				panelScrollable: panel.scrollHeight > panel.clientHeight,
 				rootWrapperDisplay: getComputedStyle(rootWrapper).display,
 				rootWrapperPosition: getComputedStyle(rootWrapper).position,
 				clickContained:
 					clickRect.left >= panelRect.left - 1 &&
 					clickRect.right <= panelRect.right + 1 &&
 					clickRect.width <= panelRect.width + 1,
+				iconChildLabelVisible:
+					getComputedStyle(iconChildLabel).position === 'static' &&
+					labelRect.width > 40 &&
+					labelRect.height > 10,
 				rootChildrenVisible: [
 					'wp-admin-bar-mirror-nested-overview-child',
 					'wp-admin-bar-mirror-nested-long-child',
 					'wp-admin-bar-mirror-nested-badge-child',
 					'wp-admin-bar-mirror-nested-click-child',
 				].every(visible),
-				secondaryChildrenVisible: [
-					'wp-admin-bar-mirror-secondary-settings-child',
-					'wp-admin-bar-mirror-secondary-report-child',
-				].every(visible),
 			};
 		});
 
-		expect(state.activeClickChild).toBe(true);
-		expect(state.panelScrollable).toBe(true);
 		expect(state.rootWrapperDisplay).toBe('block');
 		expect(state.rootWrapperPosition).toBe('static');
 		expect(state.clickContained).toBe(true);
+		expect(state.iconChildLabelVisible).toBe(true);
 		expect(state.rootChildrenVisible).toBe(true);
-		expect(state.secondaryChildrenVisible).toBe(true);
+
+		await page.locator('#wp-admin-bar-mirror-secondary-nested-menu > a.ab-item').click();
+		await expect(clickChild).toBeHidden();
+		await expect(secondaryChild).toBeVisible();
+
+		await rootAnchor.click();
+		await expect(clickChild).toBeVisible();
+		await expect(secondaryChild).toBeHidden();
 
 		await page.evaluate(() => {
 			window.__wpaboNestedChildClicks = 0;
@@ -97,24 +113,38 @@ test.describe('plugin submenu mirrors', () => {
 		expect(clicks).toBe(1);
 	});
 
-	test('S1.39 renders submenu children for an overflowed narrow-desktop mirror', async ({ page }) => {
-		await loadSubmenuFixture(page, { width: 820, height: 640, fillerCount: 24 });
+	test('S1.39 opens desktop submenu children as a nested mirror menu', async ({ page }) => {
+		await loadSubmenuFixture(page, { width: 820, height: 640, fillerCount: 12 });
 		await page.waitForFunction(() => {
 			const mirror = document.getElementById('wp-admin-bar-mirror-nested-root-menu');
 			return mirror && mirror.classList.contains('wp-admin-bar-overflow-mirror-shown');
 		});
 		await openDropdown(page);
 
+		const root = page.locator('#wp-admin-bar-mirror-nested-root-menu');
+		const rootAnchor = root.locator('> a.ab-item');
+		const longChild = page.locator('#wp-admin-bar-mirror-nested-long-child > a.ab-item');
+
+		await expect(longChild).toBeHidden();
+		await rootAnchor.click();
+		await expect(root).toHaveClass(/(^| )hover( |$)/);
+		await expect(rootAnchor).toHaveAttribute('aria-expanded', 'true');
+		await expect(longChild).toBeVisible();
+
 		const state = await page.evaluate(() => {
 			const panel = document.querySelector('#wp-admin-bar-overflow-plugins > .ab-sub-wrapper');
+			const submenu = document.querySelector('#wp-admin-bar-mirror-nested-root-menu > .ab-sub-wrapper');
 			const mirror = document.getElementById('wp-admin-bar-mirror-nested-root-menu');
 			const longChild = document.querySelector('#wp-admin-bar-mirror-nested-long-child > a.ab-item');
 			const badge = document.querySelector('#wp-admin-bar-mirror-nested-badge-child .wp-ui-notification');
 			const icon = document.querySelector('#wp-admin-bar-mirror-nested-badge-child .dashicons');
+			const iconChildLabel = document.querySelector('#wp-admin-bar-mirror-nested-badge-child .ab-label');
 			const panelRect = panel.getBoundingClientRect();
+			const submenuRect = submenu.getBoundingClientRect();
 			const longRect = longChild.getBoundingClientRect();
 			const badgeRect = badge.getBoundingClientRect();
 			const iconRect = icon.getBoundingClientRect();
+			const labelRect = iconChildLabel.getBoundingClientRect();
 			const visible = (selector) => {
 				const el = document.querySelector(selector);
 				if (!el) return false;
@@ -125,6 +155,11 @@ test.describe('plugin submenu mirrors', () => {
 			return {
 				triggerVisible: getComputedStyle(document.getElementById('wp-admin-bar-overflow-plugins')).display !== 'none',
 				mirrorShown: mirror.classList.contains('wp-admin-bar-overflow-mirror-shown'),
+				submenuDisplay: getComputedStyle(submenu).display,
+				submenuPosition: getComputedStyle(submenu).position,
+				nestedFlyout:
+					getComputedStyle(submenu).position === 'absolute' &&
+					submenuRect.right <= panelRect.left + 1,
 				childrenVisible: [
 					'#wp-admin-bar-mirror-nested-overview-child > a.ab-item',
 					'#wp-admin-bar-mirror-nested-long-child > a.ab-item',
@@ -132,20 +167,40 @@ test.describe('plugin submenu mirrors', () => {
 					'#wp-admin-bar-mirror-nested-click-child > a.ab-item',
 				].every(visible),
 				longChildContained:
-					longRect.left >= panelRect.left - 1 &&
-					longRect.right <= panelRect.right + 1 &&
-					longChild.scrollWidth <= longChild.clientWidth + 1,
+					longRect.width <= submenuRect.width + 1 &&
+					longRect.height > 32,
 				badgeAligned: Math.abs(badgeRect.height - 18) <= 1,
 				iconAligned: Math.abs(iconRect.width - 18) <= 1 && Math.abs(iconRect.height - 18) <= 1,
+				iconChildLabelVisible:
+					getComputedStyle(iconChildLabel).position === 'static' &&
+					labelRect.width > 40 &&
+					labelRect.height > 10,
 			};
 		});
 
 		expect(state.triggerVisible).toBe(true);
 		expect(state.mirrorShown).toBe(true);
+		expect(state.submenuDisplay).toBe('block');
+		expect(state.submenuPosition).toBe('absolute');
+		expect(state.nestedFlyout).toBe(true);
 		expect(state.childrenVisible).toBe(true);
 		expect(state.longChildContained).toBe(true);
 		expect(state.badgeAligned).toBe(true);
 		expect(state.iconAligned).toBe(true);
+		expect(state.iconChildLabelVisible).toBe(true);
+
+		await page.evaluate(() => {
+			window.__wpaboNestedChildClicks = 0;
+			const original = document.querySelector('#wp-admin-bar-nested-click-child > a.ab-item');
+			original.addEventListener('click', (event) => {
+				event.preventDefault();
+				window.__wpaboNestedChildClicks += 1;
+			});
+		});
+
+		await page.locator('#wp-admin-bar-mirror-nested-click-child > a.ab-item').click();
+		const clicks = await page.evaluate(() => window.__wpaboNestedChildClicks);
+		expect(clicks).toBe(1);
 	});
 });
 
@@ -280,7 +335,7 @@ function nestedRootItem() {
 				<ul class="ab-submenu" role="menu">
 					<li id="wp-admin-bar-nested-overview-child" role="none"><a class="ab-item" href="#nested-overview" role="menuitem">Overview</a></li>
 					<li id="wp-admin-bar-nested-long-child" role="none"><a class="ab-item" href="#nested-long" role="menuitem">A very long plugin submenu child label that should wrap inside the overflow panel</a></li>
-					<li id="wp-admin-bar-nested-badge-child" role="none"><a class="ab-item" href="#nested-badge" role="menuitem"><span class="ab-icon dashicons dashicons-admin-tools" aria-hidden="true"></span>Icon child <span class="wp-ui-notification">3</span></a></li>
+					<li id="wp-admin-bar-nested-badge-child" role="none"><a class="ab-item" href="#nested-badge" role="menuitem"><span class="ab-icon dashicons dashicons-admin-tools" aria-hidden="true"></span><span class="ab-label">Icon child</span> <span class="wp-ui-notification">3</span></a></li>
 					<li id="wp-admin-bar-nested-click-child" role="none"><a class="ab-item" href="#nested-click" role="menuitem">Clickable child</a></li>
 				</ul>
 			</div>
@@ -313,6 +368,10 @@ function coreAdminBarCss() {
 		#wpadminbar .ab-item { color: #f0f0f1; display: block; height: 32px; line-height: 32px; padding: 0 8px; text-decoration: none; white-space: nowrap; }
 		#wpadminbar .ab-sub-wrapper { background: #2c3338; box-shadow: 0 3px 5px rgba(0, 0, 0, .25); display: none; min-width: 220px; position: absolute; right: 0; top: 32px; }
 		#wpadminbar .menupop.hover > .ab-sub-wrapper { display: block; }
+		#wpadminbar .menupop li.hover > .ab-sub-wrapper,
+		#wpadminbar .menupop li:hover > .ab-sub-wrapper { display: block; left: 100%; right: auto; top: 0; }
+		#wpadminbar .ab-top-secondary .menupop li.hover > .ab-sub-wrapper,
+		#wpadminbar .ab-top-secondary .menupop li:hover > .ab-sub-wrapper { left: auto; right: 100%; }
 		#wpadminbar .ab-submenu { display: block; float: none; }
 		#wpadminbar .ab-submenu li { display: block; float: none; }
 		#wpadminbar .ab-submenu .ab-item { height: auto; line-height: 20px; padding: 8px 10px; }
