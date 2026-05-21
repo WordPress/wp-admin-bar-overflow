@@ -241,6 +241,21 @@
 	position: static;
 }
 
+/* Hover / focus highlight for dropdown rows and nested submenu rows.
+ * Core's `#wpadminbar .ab-item:hover` rule doesn't reach these flex-laid
+ * mirror items at the specificity our base rules use, so the rows would
+ * otherwise sit dead on hover. The `.menupop.hover > .ab-item` selector
+ * keeps the parent row lit while the pointer is over its open side
+ * fly-out — without it, the parent visually drops as soon as the pointer
+ * leaves it for its own submenu. */
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item:hover,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item:focus,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror.menupop.hover > .ab-item,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item:hover,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item:focus {
+	color: #7b90ff;
+}
+
 /* Placeholder hide fallback. The renderer also emits an inline rule so the
  * placeholder is hidden before the bundle loads. This selector mirrors that
  * rule so themes that ship a stricter CSP and block inline styles still
