@@ -67,6 +67,7 @@ test.describe('plugin submenu mirrors', () => {
 			const iconChildBadge = document.querySelector('#wp-admin-bar-mirror-nested-badge-child .wp-ui-notification');
 			const cta = document.querySelector('#wp-admin-bar-mirror-nested-cta-child > .ab-item');
 			const ctaLink = document.querySelector('#wp-admin-bar-mirror-nested-cta-child > .ab-item > a');
+			const outlineBorder = document.querySelector('#wp-admin-bar-mirror-nested-outline-child .fixture-outline-border');
 			const outline = document.querySelector('#wp-admin-bar-mirror-nested-outline-child .fixture-outline-content');
 			const arrowState = (selector) => {
 				const row = document.querySelector(selector);
@@ -84,6 +85,12 @@ test.describe('plugin submenu mirrors', () => {
 			const clickRect = clickRow.getBoundingClientRect();
 			const labelRect = iconChildLabel.getBoundingClientRect();
 			const badgeRect = iconChildBadge.getBoundingClientRect();
+			const rootBadgeRect = document
+				.querySelector('#wp-admin-bar-mirror-nested-root-menu > .ab-item .wp-ui-notification')
+				.getBoundingClientRect();
+			const rootArrowRect = document
+				.querySelector('#wp-admin-bar-mirror-nested-root-menu > .ab-item > .wp-admin-bar-arrow')
+				.getBoundingClientRect();
 			const visible = (id) => {
 				const el = document.getElementById(id);
 				if (!el) return false;
@@ -116,12 +123,14 @@ test.describe('plugin submenu mirrors', () => {
 				ctaRadius: getComputedStyle(cta).borderTopLeftRadius,
 				ctaHeight: cta.getBoundingClientRect().height,
 				ctaWidth: cta.getBoundingClientRect().width,
+				outlineBorderWidth: outlineBorder.getBoundingClientRect().width,
 				panelWidth: panelRect.width,
 				ctaLinkColor: getComputedStyle(ctaLink).color,
 				outlineItemDisplay: getComputedStyle(document.querySelector('#wp-admin-bar-mirror-nested-outline-child > .ab-item')).display,
 				outlineItemPaddingLeft: getComputedStyle(document.querySelector('#wp-admin-bar-mirror-nested-outline-child > .ab-item')).paddingLeft,
 				outlineBackground: getComputedStyle(outline).backgroundColor,
 				outlineColor: getComputedStyle(outline).color,
+				rootBadgeArrowGap: rootArrowRect.left - rootBadgeRect.right,
 				rootArrow: arrowState('#wp-admin-bar-mirror-nested-root-menu > .ab-item'),
 				settingsArrow: arrowState('#wp-admin-bar-mirror-nested-settings-child > .ab-item'),
 				overviewArrow: arrowState('#wp-admin-bar-mirror-nested-overview-child > .ab-item'),
@@ -138,11 +147,14 @@ test.describe('plugin submenu mirrors', () => {
 		expect(state.ctaRadius).toBe('6px');
 		expect(state.ctaHeight).toBe(28);
 		expect(state.ctaWidth).toBeLessThan(state.panelWidth - 48);
+		expect(Math.abs(state.outlineBorderWidth - state.ctaWidth)).toBeLessThanOrEqual(1);
 		expect(state.ctaLinkColor).toBe('rgb(120, 53, 15)');
 		expect(state.outlineItemDisplay).toBe('block');
 		expect(state.outlineItemPaddingLeft).toBe('12px');
 		expect(state.outlineBackground).toBe('rgb(30, 30, 30)');
 		expect(state.outlineColor).toBe('rgb(188, 188, 188)');
+		expect(state.rootBadgeArrowGap).toBeGreaterThanOrEqual(4);
+		expect(state.rootBadgeArrowGap).toBeLessThanOrEqual(8);
 		expect(state.rootArrow.count).toBe(1);
 		expect(state.rootArrow.content).toContain(ARROW_DOWN);
 		expect(state.rootArrow.rightInset).toBeGreaterThanOrEqual(18);
@@ -468,7 +480,7 @@ function fillerPluginItems(count) {
 function nestedRootItem() {
 	return `
 		<li id="wp-admin-bar-nested-root-menu" class="menupop" role="none">
-			<a class="ab-item" href="#nested-root" role="menuitem"><span class="wp-admin-bar-arrow" aria-hidden="true"></span>Nested Root Menu</a>
+			<a class="ab-item" href="#nested-root" role="menuitem"><span class="wp-admin-bar-arrow" aria-hidden="true"></span>Nested Root Menu <span class="wp-ui-notification">2</span></a>
 			<div class="ab-sub-wrapper" role="none">
 				<ul class="ab-submenu" role="menu">
 					<li id="wp-admin-bar-nested-overview-child" role="none"><a class="ab-item" href="#nested-overview" role="menuitem"><span class="wp-admin-bar-arrow" aria-hidden="true"></span>Overview</a></li>
@@ -535,9 +547,9 @@ function coreAdminBarCss() {
 		#wpadminbar #wp-admin-bar-nested-outline-child { display: flex; }
 		#wpadminbar #wp-admin-bar-nested-cta-child > .ab-item { align-items: center; background: #fcd34d; border-radius: 6px; display: flex; height: 16px; justify-content: center; margin: 8px 12px 0; min-height: 0; min-width: 140px; padding: 6px 10px; width: auto; }
 		#wpadminbar #wp-admin-bar-nested-cta-child > .ab-item > a { color: #78350f; display: block; padding: 0 10px; }
-		#wpadminbar #wp-admin-bar-nested-outline-child > .ab-item { display: block; height: 26px; min-height: 0; padding: 10px 12px 8px; width: 160px; }
-		#wpadminbar #wp-admin-bar-nested-outline-child .fixture-outline-border { background-image: linear-gradient(90deg, #e879f9, #93c5fd); border-radius: 6px; display: flex; height: 30px; min-height: 0; padding: 1px; width: 158px; }
-		#wpadminbar #wp-admin-bar-nested-outline-child .fixture-outline-content { background: #1e1e1e; border-radius: 6px; color: #bcbcbc; display: flex; height: 30px; min-height: 0; padding: 0 16px; width: 126px; }
+		#wpadminbar #wp-admin-bar-nested-outline-child > .ab-item { display: block; height: 26px; min-height: 0; padding: 10px 12px 8px; width: auto; }
+		#wpadminbar #wp-admin-bar-nested-outline-child .fixture-outline-border { background-image: linear-gradient(90deg, #e879f9, #93c5fd); border-radius: 6px; display: flex; height: 30px; min-height: 0; padding: 1px; width: auto; }
+		#wpadminbar #wp-admin-bar-nested-outline-child .fixture-outline-content { background: #1e1e1e; border-radius: 6px; color: #bcbcbc; display: flex; height: 30px; min-height: 0; padding: 0 17.6px; width: 100%; }
 		.screen-reader-text { border: 0; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; word-wrap: normal !important; }
 		@media (max-width: 782px) {
 			body { padding-top: 46px; }

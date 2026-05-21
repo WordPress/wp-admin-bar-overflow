@@ -51,7 +51,7 @@
 
 	#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item {
 		padding-left: 20px;
-		padding-right: 24px;
+		padding-right: 20px;
 	}
 
 	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop > .ab-sub-wrapper {
@@ -88,7 +88,7 @@
 	}
 
 	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop > .ab-sub-wrapper > .ab-submenu > li > .ab-item {
-		padding: 6px 24px 6px 32px;
+		padding: 6px 20px 6px 32px;
 	}
 
 	/* Mobile parity with Core's icon-only top-secondary items

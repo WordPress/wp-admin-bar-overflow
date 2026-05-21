@@ -108,6 +108,10 @@
 	width: 16px;
 }
 
+#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].wp-admin-bar-overflow-has-badge > .ab-item > .wp-admin-bar-arrow {
+	margin-left: 0;
+}
+
 #wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of] > .ab-item > .wp-admin-bar-arrow::before {
 	content: "\f139";
 	font-family: dashicons, sans-serif;

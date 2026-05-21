@@ -37,6 +37,8 @@ const ORIGINAL_PREFIX = 'wp-admin-bar-';
 const MIRROR_CLASS = 'wp-admin-bar-overflow-mirror';
 const MIRROR_LABEL_CLASS = 'wp-admin-bar-overflow-mirror-label';
 const ARROW_CLASS = 'wp-admin-bar-arrow';
+const PRESERVED_CONTROL_CLASS = 'wp-admin-bar-overflow-preserved-control';
+const PRESERVED_VISUAL_CLASS = 'wp-admin-bar-overflow-preserved-visual';
 const NON_LABEL_TEXT_SELECTOR = [
 	'.screen-reader-text',
 	'.wp-ui-notification',
@@ -45,6 +47,7 @@ const NON_LABEL_TEXT_SELECTOR = [
 	'.ab-icon',
 	'[aria-hidden="true"]',
 ].join(', ');
+const BADGE_SELECTOR = '.wp-ui-notification, .yoast-issue-counter, .yoast-issues-count';
 const RUNTIME_HIDE_CLASSES = [
 	'wp-admin-bar-overflow-classified-plugin-node',
 	'wp-admin-bar-overflow-hidden-by-overflow',
@@ -163,6 +166,7 @@ export function buildMirror(original, entry) {
 	rewriteIdsAndMarkMirror(clone);
 	stripRuntimeHideClasses(clone);
 	preserveStyledSubmenuItems(clone);
+	normalizePreservedControlWidths(clone);
 	clone.classList.add(MIRROR_CLASS);
 	applyIconOnlyLabelTreatment(clone, entry);
 	normalizeMirrorArrows(clone);
@@ -222,6 +226,7 @@ function preserveStyledSubmenuItems(clone) {
 
 		if (preserveStyledElementTree(originalDirectItem, mirroredDirectItem, false)) {
 			copyPreservedLayout(originalItem, mirroredItem);
+			mirroredItem.classList.add(PRESERVED_CONTROL_CLASS);
 		}
 	}
 }
@@ -258,7 +263,73 @@ function preserveStyledElementTree(originalEl, mirroredEl, inheritedPreserve) {
 	if (preserveOwnStyle || inheritedPreserve) {
 		copyPreservedVisuals(originalEl, mirroredEl);
 	}
+	if (preserveOwnStyle) {
+		mirroredEl.classList.add(PRESERVED_VISUAL_CLASS);
+	}
 	return subtreeHasPreservedStyle;
+}
+
+function normalizePreservedControlWidths(clone) {
+	const submenus = Array.from(clone.querySelectorAll('.ab-submenu'));
+	for (let i = 0; i < submenus.length; i++) {
+		const controls = Array.from(submenus[i].children || [])
+			.filter((child) => child.classList && child.classList.contains(PRESERVED_CONTROL_CLASS))
+			.map((child) => outermostPreservedVisual(child))
+			.filter(Boolean);
+		if (controls.length < 2) continue;
+
+		const targetWidth = controls.reduce((max, control) => {
+			const width = inlineOuterWidth(control);
+			return width ? Math.max(max, width) : max;
+		}, 0);
+		if (!targetWidth) continue;
+
+		for (let j = 0; j < controls.length; j++) {
+			setInlineOuterWidth(controls[j], targetWidth);
+		}
+	}
+}
+
+function outermostPreservedVisual(item) {
+	const directItem = directAdminBarItem(item);
+	if (!directItem) return null;
+	if (directItem.classList.contains(PRESERVED_VISUAL_CLASS)) {
+		return directItem;
+	}
+	return directItem.querySelector('.' + PRESERVED_VISUAL_CLASS);
+}
+
+function inlineOuterWidth(el) {
+	const width = parsePixelValue(el.style.getPropertyValue('width')) || parsePixelValue(el.style.getPropertyValue('min-width'));
+	if (!width) return null;
+	const boxSizing = el.style.getPropertyValue('box-sizing');
+	if (boxSizing === 'border-box') {
+		return width;
+	}
+	return width + horizontalInlineBox(el);
+}
+
+function setInlineOuterWidth(el, outerWidth) {
+	const boxSizing = el.style.getPropertyValue('box-sizing');
+	const contentWidth = boxSizing === 'border-box' ? outerWidth : outerWidth - horizontalInlineBox(el);
+	if (contentWidth > 0) {
+		el.style.setProperty('width', contentWidth.toFixed(3).replace(/\.?0+$/, '') + 'px');
+	}
+}
+
+function horizontalInlineBox(el) {
+	return (
+		parsePixelValue(el.style.getPropertyValue('padding-left')) +
+		parsePixelValue(el.style.getPropertyValue('padding-right')) +
+		parsePixelValue(el.style.getPropertyValue('border-left-width')) +
+		parsePixelValue(el.style.getPropertyValue('border-right-width'))
+	);
+}
+
+function parsePixelValue(value) {
+	if (!value || !value.endsWith('px')) return 0;
+	const parsed = parseFloat(value);
+	return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function copyPreservedVisuals(originalEl, mirroredEl) {
@@ -373,11 +444,13 @@ function normalizeMirrorArrows(clone) {
 		);
 		const hasSubmenu = hasDirectSubmenu(item);
 		if (!hasSubmenu) {
+			item.classList.remove('wp-admin-bar-overflow-has-badge');
 			for (let j = 0; j < arrows.length; j++) {
 				arrows[j].remove();
 			}
 			continue;
 		}
+		item.classList.toggle('wp-admin-bar-overflow-has-badge', Boolean(directItem.querySelector(BADGE_SELECTOR)));
 
 		const arrow = arrows[0] || document.createElement('span');
 		arrow.classList.add(ARROW_CLASS);
