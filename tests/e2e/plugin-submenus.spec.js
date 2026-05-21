@@ -55,9 +55,11 @@ test.describe('plugin submenu mirrors', () => {
 			const rootWrapper = document.querySelector('#wp-admin-bar-mirror-nested-root-menu > .ab-sub-wrapper');
 			const clickRow = document.querySelector('#wp-admin-bar-mirror-nested-click-child > a.ab-item');
 			const iconChildLabel = document.querySelector('#wp-admin-bar-mirror-nested-badge-child .ab-label');
+			const iconChildBadge = document.querySelector('#wp-admin-bar-mirror-nested-badge-child .wp-ui-notification');
 			const panelRect = panel.getBoundingClientRect();
 			const clickRect = clickRow.getBoundingClientRect();
 			const labelRect = iconChildLabel.getBoundingClientRect();
+			const badgeRect = iconChildBadge.getBoundingClientRect();
 			const visible = (id) => {
 				const el = document.getElementById(id);
 				if (!el) return false;
@@ -76,6 +78,7 @@ test.describe('plugin submenu mirrors', () => {
 					getComputedStyle(iconChildLabel).position === 'static' &&
 					labelRect.width > 40 &&
 					labelRect.height > 10,
+				iconChildBadgeInset: panelRect.right - badgeRect.right,
 				rootChildrenVisible: [
 					'wp-admin-bar-mirror-nested-overview-child',
 					'wp-admin-bar-mirror-nested-long-child',
@@ -89,6 +92,7 @@ test.describe('plugin submenu mirrors', () => {
 		expect(state.rootWrapperPosition).toBe('static');
 		expect(state.clickContained).toBe(true);
 		expect(state.iconChildLabelVisible).toBe(true);
+		expect(state.iconChildBadgeInset).toBeGreaterThanOrEqual(18);
 		expect(state.rootChildrenVisible).toBe(true);
 
 		await page.locator('#wp-admin-bar-mirror-secondary-nested-menu > a.ab-item').click();
