@@ -94,7 +94,7 @@
 	}
 }
 
-@media (min-width: 783px) and (max-width: 1279px) {
+@media (min-width: 783px) {
 	#wpadminbar #wp-admin-bar-overflow-plugins {
 		display: none;
 	}
@@ -103,7 +103,7 @@
 		display: block;
 	}
 
-	/* Narrow desktop: each mirror starts hidden; the runtime adds
+	/* Desktop: each mirror starts hidden; the runtime adds
 	 * `wp-admin-bar-overflow-mirror-shown` to the mirror whose original
 	 * overflows. Visible mirrors override the default `display: none`. */
 	#wpadminbar .wp-admin-bar-overflow-mirror {
@@ -112,13 +112,5 @@
 
 	#wpadminbar .wp-admin-bar-overflow-mirror.wp-admin-bar-overflow-mirror-shown {
 		display: block;
-	}
-}
-
-@media (min-width: 1280px) {
-	/* Wide desktop: every plugin original fits inline; no mirroring
-	 * needed, so hide the dropdown trigger itself. */
-	#wpadminbar #wp-admin-bar-overflow-plugins {
-		display: none;
 	}
 }

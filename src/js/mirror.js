@@ -22,8 +22,9 @@
  * removed before the first real mirror lands so the dropdown only ever
  * holds real entries.
  *
- * Mirrors are appended in the nav-model's priority order; the classifier
- * is the single source of truth for that order.
+ * Mirrors are initially appended in the nav-model's priority order. The
+ * overflow runtime reorders shown mirrors by measured visual cutoff order
+ * when only part of the plugin set fits.
  *
  * `mutation-sync.js` reuses `buildMirror()` to refresh a mirror in place
  * when its original mutates (text / class / aria changes).
