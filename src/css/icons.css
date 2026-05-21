@@ -7,22 +7,10 @@
  * (Joen's design comment), swap this for the chosen `@wordpress/icons` SVG.
  */
 
-#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item::before {
-	display: block;
-	font: 400 20px/1 dashicons, sans-serif;
+#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item > .ab-icon::before {
 	content: "\f106";
+	font: 400 20px/1 dashicons, sans-serif;
 	speak: never;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	height: 20px;
-	width: 20px;
-}
-
-@media (max-width: 782px) {
-	#wpadminbar #wp-admin-bar-overflow-plugins > .ab-item::before {
-		font-size: 32px;
-		height: 32px;
-		line-height: 32px;
-		width: 32px;
-	}
 }

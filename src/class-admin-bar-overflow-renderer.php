@@ -156,13 +156,17 @@ class Admin_Bar_Overflow_Renderer {
 	}
 
 	/**
-	 * Build the trigger title as accessible text without a visible label.
+	 * Build the trigger title with the icon container Core's admin-bar CSS
+	 * targets. The `.ab-icon` span is the hook the responsive/icons sheets
+	 * style; without it the trigger can't match the dimensions and centering
+	 * Core applies to icon-only top-secondary items (e.g. `my-account`).
 	 *
 	 * @param string $label Visible name from the nav model.
 	 * @return string HTML fragment for the admin-bar node title.
 	 */
 	private static function screen_reader_title( string $label ): string {
-		return '<span class="screen-reader-text">' . esc_html( $label ) . '</span>';
+		return '<span class="ab-icon" aria-hidden="true"></span>'
+			. '<span class="screen-reader-text">' . esc_html( $label ) . '</span>';
 	}
 
 	/**

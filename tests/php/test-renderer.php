@@ -100,7 +100,10 @@ final class Admin_Bar_Overflow_Renderer_Test extends TestCase {
 		ob_end_clean();
 
 		$nodes = $this->bar()->get_nodes();
-		$this->assertSame( '<span class="screen-reader-text">Tools &amp; Plugins</span>', $nodes['overflow-plugins']->title );
+		$this->assertSame(
+			'<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">Tools &amp; Plugins</span>',
+			$nodes['overflow-plugins']->title
+		);
 	}
 
 	public function test_renderer_registers_placeholder_group_and_child(): void {
