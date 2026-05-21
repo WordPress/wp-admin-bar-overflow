@@ -18,13 +18,15 @@ Two layers, each with one responsibility:
   `'plugin'`, or `'skip'`. Core ids come from a built-in allowlist
   (`src/registry.php`). Host-owned ids return `'wpcom'` from the host
   adapter's `wp_admin_bar_overflow_node_classify` binding. The classifier
-  does not decide visibility or viewport behaviour.
+  does not decide visibility or viewport behaviour. Nodes classified as
+  `'skip'` are also emitted as `skipNodeIds` so runtime DOM-only discovery
+  does not re-enroll them later in the request.
 
 - **Renderer (`Admin_Bar_Overflow_Renderer` + runtime JS)** decides _which
-  classified plugin nodes to mirror at which viewport_. At wide desktop
-  (≥ 1280px) nothing is mirrored. At narrow desktop (783-1279px), plugin
-  nodes that no longer fit are hidden in place and shown as mirrors in the
-  dropdown. At tablet + mobile (≤ 782px) all classified-as-plugin nodes are
+  classified plugin nodes to mirror at which viewport_. At desktop widths
+  above tablet, plugin nodes that no longer fit are hidden in place and shown
+  as mirrors in the dropdown. At tablet + mobile (≤ 782px) all
+  classified-as-plugin nodes are
   mirrored unconditionally.
 
 Decoupling "what is plugin" from "what to mirror" lets the classifier stay
@@ -85,6 +87,7 @@ type NavModel = {
     version: number;
     enabled: boolean;
     nodes: ClassificationEntry[];
+    skipNodeIds: string[];
     dropdown: {
         id: string;
         label: string;
