@@ -54,7 +54,7 @@
 		padding-right: 24px;
 	}
 
-	#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper {
+	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop > .ab-sub-wrapper {
 		background: transparent;
 		box-shadow: none;
 		margin: 0;
@@ -64,22 +64,22 @@
 		width: 100%;
 	}
 
-	#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror:not(.hover) > .ab-sub-wrapper {
+	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop:not(.hover) > .ab-sub-wrapper {
 		display: none;
 	}
 
-	#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror.hover > .ab-sub-wrapper {
+	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop.hover > .ab-sub-wrapper {
 		display: block;
 	}
 
-	#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu {
+	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop > .ab-sub-wrapper > .ab-submenu {
 		background: transparent;
 		box-sizing: border-box;
 		min-width: 0;
 		width: 100%;
 	}
 
-	#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li {
+	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop > .ab-sub-wrapper > .ab-submenu > li {
 		box-sizing: border-box;
 		display: block;
 		float: none;
@@ -87,7 +87,7 @@
 		width: 100%;
 	}
 
-	#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item {
+	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].menupop > .ab-sub-wrapper > .ab-submenu > li > .ab-item {
 		padding: 6px 24px 6px 32px;
 	}
 

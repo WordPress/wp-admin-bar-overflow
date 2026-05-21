@@ -36,6 +36,7 @@ const MIRROR_PREFIX = 'wp-admin-bar-mirror-';
 const ORIGINAL_PREFIX = 'wp-admin-bar-';
 const MIRROR_CLASS = 'wp-admin-bar-overflow-mirror';
 const MIRROR_LABEL_CLASS = 'wp-admin-bar-overflow-mirror-label';
+const ARROW_CLASS = 'wp-admin-bar-arrow';
 const NON_LABEL_TEXT_SELECTOR = [
 	'.screen-reader-text',
 	'.wp-ui-notification',
@@ -47,6 +48,67 @@ const NON_LABEL_TEXT_SELECTOR = [
 const RUNTIME_HIDE_CLASSES = [
 	'wp-admin-bar-overflow-classified-plugin-node',
 	'wp-admin-bar-overflow-hidden-by-overflow',
+];
+const STYLE_PRESERVE_IGNORE_SELECTOR = [
+	'.screen-reader-text',
+	'.wp-ui-notification',
+	'.yoast-issue-counter',
+	'.yoast-issues-count',
+	'.ab-icon',
+	'.dashicons',
+	'.wp-admin-bar-arrow',
+	'[aria-hidden="true"]',
+].join(', ');
+const PRESERVED_VISUAL_PROPERTIES = [
+	'background-color',
+	'background-image',
+	'border-top-color',
+	'border-top-style',
+	'border-top-width',
+	'border-right-color',
+	'border-right-style',
+	'border-right-width',
+	'border-bottom-color',
+	'border-bottom-style',
+	'border-bottom-width',
+	'border-left-color',
+	'border-left-style',
+	'border-left-width',
+	'border-top-left-radius',
+	'border-top-right-radius',
+	'border-bottom-right-radius',
+	'border-bottom-left-radius',
+	'box-shadow',
+	'color',
+	'outline-color',
+	'outline-style',
+	'outline-width',
+	'text-decoration-color',
+];
+const PRESERVED_LAYOUT_PROPERTIES = [
+	'align-items',
+	'box-sizing',
+	'display',
+	'flex-basis',
+	'flex-grow',
+	'flex-shrink',
+	'gap',
+	'height',
+	'justify-content',
+	'line-height',
+	'margin-top',
+	'margin-right',
+	'margin-bottom',
+	'margin-left',
+	'max-height',
+	'max-width',
+	'min-height',
+	'min-width',
+	'padding-top',
+	'padding-right',
+	'padding-bottom',
+	'padding-left',
+	'width',
 ];
 
 let pluginEntriesByNodeId = null;
@@ -100,8 +162,10 @@ export function buildMirror(original, entry) {
 	const clone = original.cloneNode(true);
 	rewriteIdsAndMarkMirror(clone);
 	stripRuntimeHideClasses(clone);
+	preserveStyledSubmenuItems(clone);
 	clone.classList.add(MIRROR_CLASS);
 	applyIconOnlyLabelTreatment(clone, entry);
+	normalizeMirrorArrows(clone);
 	normalizeMirrorRoles(clone);
 	return clone;
 }
@@ -129,6 +193,154 @@ function stripRuntimeHideClasses(clone) {
 	}
 }
 
+function preserveStyledSubmenuItems(clone) {
+	// Rewriting ids is required, but it breaks plugin CSS scoped to the
+	// original ids. For submenu children with plugin-styled controls, copy the
+	// original box model along the path to the control and copy the control's
+	// own visual styles. Plain rows stay under the overflow menu's normalized
+	// row treatment.
+	const mirroredItems = Array.from(clone.querySelectorAll('[data-mirror-of]'));
+	for (let i = 0; i < mirroredItems.length; i++) {
+		const mirroredItem = mirroredItems[i];
+		if (mirroredItem === clone) continue;
+		const originalId = mirroredItem.getAttribute('data-mirror-of');
+		if (!originalId) continue;
+		const originalItem = document.getElementById(originalId);
+		if (!originalItem) continue;
+
+		// Leaf submenu rows hidden by the plugin should stay hidden in the
+		// mirror. Menu parents can be hidden by mobile admin-bar CSS while
+		// still being needed as structure for visible children.
+		if (isHiddenByOwnStyle(originalItem) && !hasDirectSubmenu(originalItem)) {
+			mirroredItem.style.setProperty('display', 'none');
+			continue;
+		}
+
+		const originalDirectItem = directAdminBarItem(originalItem);
+		const mirroredDirectItem = directAdminBarItem(mirroredItem);
+		if (!originalDirectItem || !mirroredDirectItem) continue;
+
+		if (preserveStyledElementTree(originalDirectItem, mirroredDirectItem, false)) {
+			copyPreservedLayout(originalItem, mirroredItem);
+		}
+	}
+}
+
+function directAdminBarItem(item) {
+	const children = Array.from(item.children || []);
+	for (let i = 0; i < children.length; i++) {
+		if (children[i].matches('a.ab-item, div.ab-item')) {
+			return children[i];
+		}
+	}
+	return null;
+}
+
+function preserveStyledElementTree(originalEl, mirroredEl, inheritedPreserve) {
+	if (!originalEl || !mirroredEl || shouldIgnoreStylePreservation(originalEl)) {
+		return false;
+	}
+
+	const preserveOwnStyle = hasPreservableVisualStyle(originalEl);
+	const originalChildren = Array.from(originalEl.children || []);
+	const mirroredChildren = Array.from(mirroredEl.children || []);
+	let descendantHasPreservedStyle = false;
+	for (let i = 0; i < originalChildren.length && i < mirroredChildren.length; i++) {
+		descendantHasPreservedStyle =
+			preserveStyledElementTree(originalChildren[i], mirroredChildren[i], inheritedPreserve || preserveOwnStyle) ||
+			descendantHasPreservedStyle;
+	}
+
+	const subtreeHasPreservedStyle = preserveOwnStyle || descendantHasPreservedStyle;
+	if (subtreeHasPreservedStyle) {
+		copyPreservedLayout(originalEl, mirroredEl);
+	}
+	if (preserveOwnStyle || inheritedPreserve) {
+		copyPreservedVisuals(originalEl, mirroredEl);
+	}
+	return subtreeHasPreservedStyle;
+}
+
+function copyPreservedVisuals(originalEl, mirroredEl) {
+	const originalStyle = getComputedStyle(originalEl);
+	for (let i = 0; i < PRESERVED_VISUAL_PROPERTIES.length; i++) {
+		copyComputedProperty(originalStyle, mirroredEl, PRESERVED_VISUAL_PROPERTIES[i]);
+	}
+}
+
+function copyPreservedLayout(originalEl, mirroredEl) {
+	const originalStyle = getComputedStyle(originalEl);
+	for (let i = 0; i < PRESERVED_LAYOUT_PROPERTIES.length; i++) {
+		copyComputedProperty(originalStyle, mirroredEl, PRESERVED_LAYOUT_PROPERTIES[i]);
+	}
+}
+
+function copyComputedProperty(computedStyle, el, property) {
+	const value = computedStyle.getPropertyValue(property);
+	if (value) {
+		el.style.setProperty(property, value);
+	}
+}
+
+function shouldIgnoreStylePreservation(el) {
+	return el.matches(STYLE_PRESERVE_IGNORE_SELECTOR);
+}
+
+function isHiddenByOwnStyle(el) {
+	const style = getComputedStyle(el);
+	return style.getPropertyValue('display') === 'none' || style.getPropertyValue('visibility') === 'hidden';
+}
+
+function hasPreservableVisualStyle(el) {
+	if (shouldIgnoreStylePreservation(el)) return false;
+	const style = getComputedStyle(el);
+	if (!isTransparent(style.getPropertyValue('background-color'))) return true;
+	if (style.getPropertyValue('background-image') !== 'none') return true;
+	if (style.getPropertyValue('box-shadow') !== 'none') return true;
+	if (hasVisibleOutline(style)) return true;
+	if (hasVisibleBorder(style)) return true;
+	return hasNonZeroRadius(style);
+}
+
+function hasVisibleBorder(style) {
+	const sides = ['top', 'right', 'bottom', 'left'];
+	for (let i = 0; i < sides.length; i++) {
+		const side = sides[i];
+		const width = parseFloat(style.getPropertyValue('border-' + side + '-width')) || 0;
+		const borderStyle = style.getPropertyValue('border-' + side + '-style');
+		if (width > 0 && borderStyle !== 'none' && borderStyle !== 'hidden') {
+			return true;
+		}
+	}
+	return false;
+}
+
+function hasVisibleOutline(style) {
+	const width = parseFloat(style.getPropertyValue('outline-width')) || 0;
+	const outlineStyle = style.getPropertyValue('outline-style');
+	return width > 0 && outlineStyle !== 'none' && outlineStyle !== 'hidden';
+}
+
+function hasNonZeroRadius(style) {
+	const corners = [
+		'border-top-left-radius',
+		'border-top-right-radius',
+		'border-bottom-right-radius',
+		'border-bottom-left-radius',
+	];
+	for (let i = 0; i < corners.length; i++) {
+		if (parseFloat(style.getPropertyValue(corners[i])) > 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function isTransparent(value) {
+	const normalized = (value || '').replace(/\s+/g, '').toLowerCase();
+	return !normalized || normalized === 'transparent' || normalized === 'rgba(0,0,0,0)';
+}
+
 function normalizeMirrorRoles(clone) {
 	const items = [clone].concat(Array.from(clone.querySelectorAll('li')));
 	for (let i = 0; i < items.length; i++) {
@@ -145,6 +357,36 @@ function normalizeMirrorRoles(clone) {
 			if (!directItem.hasAttribute('aria-expanded')) {
 				directItem.setAttribute('aria-expanded', 'false');
 			}
+		}
+	}
+}
+
+function normalizeMirrorArrows(clone) {
+	const items = [clone].concat(Array.from(clone.querySelectorAll('li')));
+	for (let i = 0; i < items.length; i++) {
+		const item = items[i];
+		const directItem = directAdminBarItem(item);
+		if (!directItem) continue;
+
+		const arrows = Array.from(directItem.children || []).filter((child) =>
+			child.classList && child.classList.contains(ARROW_CLASS)
+		);
+		const hasSubmenu = hasDirectSubmenu(item);
+		if (!hasSubmenu) {
+			for (let j = 0; j < arrows.length; j++) {
+				arrows[j].remove();
+			}
+			continue;
+		}
+
+		const arrow = arrows[0] || document.createElement('span');
+		arrow.classList.add(ARROW_CLASS);
+		arrow.setAttribute('aria-hidden', 'true');
+		if (!arrow.parentNode) {
+			directItem.insertBefore(arrow, directItem.firstChild);
+		}
+		for (let j = 1; j < arrows.length; j++) {
+			arrows[j].remove();
 		}
 	}
 }

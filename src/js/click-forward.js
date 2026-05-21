@@ -21,7 +21,6 @@
  */
 
 const TRIGGER_HTML_ID = 'wp-admin-bar-overflow-plugins';
-const PLUGINS_GROUP_HTML_ID = 'wp-admin-bar-overflow-plugins-default';
 
 export function setupClickForward(bar) {
 	const trigger = document.getElementById(TRIGGER_HTML_ID);
@@ -72,16 +71,34 @@ function shouldToggleMirrorSubmenu(mirror, target) {
 
 function toggleMirrorSubmenu(mirror) {
 	const wasOpen = mirror.classList.contains('hover');
-	const group = document.getElementById(PLUGINS_GROUP_HTML_ID);
-	if (group) {
-		const openMenus = group.querySelectorAll('[data-mirror-of].menupop.hover');
-		for (let i = 0; i < openMenus.length; i++) {
-			if (openMenus[i] !== mirror) {
-				setMirrorSubmenuOpen(openMenus[i], false);
-			}
+	if (wasOpen) {
+		closeMirrorTree(mirror);
+		return;
+	}
+
+	closeSiblingMirrorSubmenus(mirror);
+	setMirrorSubmenuOpen(mirror, true);
+}
+
+function closeSiblingMirrorSubmenus(mirror) {
+	const parent = mirror.parentElement;
+	if (!parent) return;
+
+	const siblings = Array.from(parent.children || []);
+	for (let i = 0; i < siblings.length; i++) {
+		const sibling = siblings[i];
+		if (sibling !== mirror && sibling.matches('[data-mirror-of].menupop.hover')) {
+			closeMirrorTree(sibling);
 		}
 	}
-	setMirrorSubmenuOpen(mirror, !wasOpen);
+}
+
+function closeMirrorTree(mirror) {
+	const openDescendants = mirror.querySelectorAll('[data-mirror-of].menupop.hover');
+	for (let i = 0; i < openDescendants.length; i++) {
+		setMirrorSubmenuOpen(openDescendants[i], false);
+	}
+	setMirrorSubmenuOpen(mirror, false);
 }
 
 function setMirrorSubmenuOpen(mirror, open) {

@@ -93,7 +93,7 @@
 	width: 20px;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .wp-admin-bar-arrow {
+#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of] > .ab-item > .wp-admin-bar-arrow {
 	align-items: center;
 	display: inline-flex;
 	flex: 0 0 16px;
@@ -108,12 +108,18 @@
 	width: 16px;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .wp-admin-bar-arrow::before {
+#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of] > .ab-item > .wp-admin-bar-arrow::before {
+	content: "\f139";
+	font-family: dashicons, sans-serif;
 	left: auto;
 	margin: 0;
 	position: static;
 	right: auto;
 	top: auto;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].hover > .ab-item > .wp-admin-bar-arrow::before {
+	content: "\f140";
 }
 
 #wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-admin-bar-overflow-mirror-label {
