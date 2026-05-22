@@ -57,6 +57,8 @@
 	color: rgb(240 246 252 / 70%);
 	display: flex;
 	gap: 6px;
+	height: auto;
+	line-height: 20px;
 	min-height: 36px;
 	padding: 8px 10px;
 	white-space: nowrap;
@@ -91,7 +93,7 @@
 	width: 20px;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .wp-admin-bar-arrow {
+#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of] > .ab-item > .wp-admin-bar-arrow {
 	align-items: center;
 	display: inline-flex;
 	flex: 0 0 16px;
@@ -106,7 +108,9 @@
 	width: 16px;
 }
 
-#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item > .wp-admin-bar-arrow::before {
+#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of] > .ab-item > .wp-admin-bar-arrow::before {
+	content: "\f139";
+	font-family: dashicons, sans-serif;
 	left: auto;
 	margin: 0;
 	position: static;
@@ -114,11 +118,21 @@
 	top: auto;
 }
 
+/* Mobile collapses each submenu inline beneath its parent, so the arrow
+ * doubles as an open/closed affordance and flips down when expanded.
+ * Desktop opens the submenu as a side fly-out (the parent stays in place),
+ * so the arrow keeps its closed direction to mirror Core's `.menupop`. */
+@media (max-width: 782px) {
+	#wpadminbar #wp-admin-bar-overflow-plugins [data-mirror-of].hover > .ab-item > .wp-admin-bar-arrow::before {
+		content: "\f140";
+	}
+}
+
 #wpadminbar .wp-admin-bar-overflow-mirror > .ab-item .wp-admin-bar-overflow-mirror-label {
 	clip: auto;
 	clip-path: none;
 	color: inherit !important;
-	flex: 1 1 auto;
+	flex: 0 1 auto;
 	height: auto;
 	line-height: 20px;
 	margin: 0;
@@ -140,11 +154,112 @@
 	height: 18px;
 	justify-content: center;
 	line-height: 18px;
-	margin-left: auto;
 	min-width: 18px;
 	padding: 0 !important;
 	position: static;
 	width: 18px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper {
+	min-width: 220px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item {
+	align-items: center;
+	box-sizing: border-box;
+	color: rgb(240 246 252 / 70%);
+	display: flex;
+	gap: 6px;
+	height: auto;
+	line-height: 20px;
+	min-height: 32px;
+	overflow-wrap: anywhere;
+	white-space: normal;
+	width: 100%;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .ab-icon,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .dashicons,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > [id$="-ab-icon"] {
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	background-size: 18px 18px !important;
+	box-sizing: border-box;
+	color: inherit !important;
+	flex: 0 0 18px;
+	height: 18px;
+	line-height: 18px;
+	margin: 0;
+	min-width: 18px;
+	padding: 0;
+	width: 18px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .ab-icon::before,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .dashicons::before {
+	color: inherit !important;
+	display: block;
+	font-size: 18px;
+	height: 18px;
+	line-height: 18px;
+	width: 18px;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item > .ab-label:not(.screen-reader-text) {
+	clip: auto;
+	clip-path: none;
+	color: inherit !important;
+	flex: 0 1 auto;
+	height: auto;
+	line-height: 20px;
+	margin: 0;
+	min-width: 0;
+	overflow: hidden;
+	position: static;
+	text-overflow: ellipsis;
+	width: auto;
+}
+
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item .wp-ui-notification {
+	align-self: center;
+	align-items: center;
+	border-radius: 9999px;
+	box-sizing: border-box;
+	display: inline-flex;
+	flex: 0 0 auto;
+	height: 18px;
+	justify-content: center;
+	line-height: 18px;
+	min-width: 18px;
+	padding: 0 4px !important;
+	position: static;
+}
+
+/* WP Mail SMTP (and lookalike plugins) inject their badge with a hardcoded
+ * `margin: 7px 0 0 2px !important` + `vertical-align: top !important` so it
+ * lines up inside Core's 32 px-tall top admin bar. Inside our flex-laid
+ * dropdown rows (`align-items: center`, ~36 px tall), the 7 px top margin
+ * shoves the "!" below center and `vertical-align: top` would too if the
+ * row weren't flex. Zero both so the row's own centering wins. */
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror .wp-mail-smtp-admin-bar-menu-error,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror .wp-mail-smtp-admin-bar-menu-notification-counter {
+	margin: 0 !important;
+	vertical-align: middle !important;
+}
+
+/* Hover / focus highlight for dropdown rows and nested submenu rows.
+ * Core's `#wpadminbar .ab-item:hover` rule doesn't reach these flex-laid
+ * mirror items at the specificity our base rules use, so the rows would
+ * otherwise sit dead on hover. The `.menupop.hover > .ab-item` selector
+ * keeps the parent row lit while the pointer is over its open side
+ * fly-out — without it, the parent visually drops as soon as the pointer
+ * leaves it for its own submenu. */
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item:hover,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror > .ab-item:focus,
+#wpadminbar #wp-admin-bar-overflow-plugins .ab-submenu > .wp-admin-bar-overflow-mirror.menupop.hover > .ab-item,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item:hover,
+#wpadminbar #wp-admin-bar-overflow-plugins .wp-admin-bar-overflow-mirror > .ab-sub-wrapper > .ab-submenu > li > .ab-item:focus {
+	color: #7b90ff;
 }
 
 /* Placeholder hide fallback. The renderer also emits an inline rule so the

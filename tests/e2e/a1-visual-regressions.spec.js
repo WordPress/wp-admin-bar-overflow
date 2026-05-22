@@ -272,6 +272,9 @@ test.describe('A.1 visual regressions', () => {
 			const lr = label.getBoundingClientRect();
 			const br = badge.getBoundingClientRect();
 			const ir = icon.getBoundingClientRect();
+			const panelRect = document
+				.querySelector('#wp-admin-bar-overflow-plugins > .ab-sub-wrapper')
+				.getBoundingClientRect();
 			const iconStyle = getComputedStyle(icon);
 			const mid = (rect) => rect.top + rect.height / 2;
 			const textLeft = (selector) => {
@@ -302,6 +305,7 @@ test.describe('A.1 visual regressions', () => {
 					labelWidth: lr.width,
 					badgeWidth: br.width,
 					badgeHeight: br.height,
+					badgeRightInset: panelRect.right - br.right,
 					iconWidth: ir.width,
 					iconHeight: ir.height,
 					iconBackgroundSize: iconStyle.backgroundSize,
@@ -312,7 +316,7 @@ test.describe('A.1 visual regressions', () => {
 				},
 				deepMenu: {
 					textLeftDelta: Math.abs(textLeft('#wp-admin-bar-mirror-deep-menu > a.ab-item') - textOnlyRowLeft),
-					arrowRightDelta: Math.abs(deepAnchorRect.right - deepArrowRect.right),
+					arrowRightInset: deepAnchorRect.right - deepArrowRect.right,
 				},
 				iconTool: {
 					labelText: iconToolLabel.textContent.trim(),
@@ -327,6 +331,7 @@ test.describe('A.1 visual regressions', () => {
 		expect(state.yoast.labelText).toBe('Yoast SEO');
 		expect(state.yoast.labelWidth).toBeGreaterThan(40);
 		expect(Math.abs(state.yoast.badgeWidth - state.yoast.badgeHeight)).toBeLessThanOrEqual(2);
+		expect(state.yoast.badgeRightInset).toBeGreaterThanOrEqual(18);
 		expect(state.yoast.iconWidth).toBe(20);
 		expect(state.yoast.iconHeight).toBe(20);
 		expect(state.yoast.iconBackgroundSize).toBe('20px 20px');
@@ -334,7 +339,8 @@ test.describe('A.1 visual regressions', () => {
 		expect(state.yoast.badgeMidDelta).toBeLessThanOrEqual(2);
 		expect(state.yoast.iconMidDelta).toBeLessThanOrEqual(2);
 		expect(state.deepMenu.textLeftDelta).toBeLessThanOrEqual(1);
-		expect(state.deepMenu.arrowRightDelta).toBeLessThanOrEqual(12);
+		expect(state.deepMenu.arrowRightInset).toBeGreaterThanOrEqual(18);
+		expect(state.deepMenu.arrowRightInset).toBeLessThanOrEqual(28);
 		expect(state.iconTool.labelText).toBe('Fixture Icon Tool');
 		expect(state.iconTool.iconWidth).toBe(20);
 		expect(state.iconTool.iconHeight).toBe(20);
