@@ -1,6 +1,6 @@
 {
 	"name": "wp-admin-bar-overflow",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Responsive overflow for plugin-added WordPress admin-bar nodes.",
 	"private": true,
 	"license": "GPL-2.0-or-later",
