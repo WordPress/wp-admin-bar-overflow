@@ -38,10 +38,10 @@
  *
  * (e) Runs a `Closure::bind` reorder closure to move the trigger before the
  *     first id in `apply_filters( 'wp_admin_bar_overflow_trigger_insert_before_ids', [ 'my-account' ] )`
- *     that is present in `$wp_admin_bar->_nodes[]`. Without the reorder,
- *     `WP_Admin_Bar::_bind()` builds `children[]` in `$_nodes`-insertion
- *     order, which would place the trigger after every existing right-side
- *     node. Pattern modelled on `omnibar.php:570-600`'s
+ *     that is present in the admin bar instance's private `$nodes` map.
+ *     Without the reorder, `WP_Admin_Bar::_bind()` builds `children[]` in
+ *     `$nodes` insertion order, which would place the trigger after every
+ *     existing right-side node. Pattern modelled on `omnibar.php:570-600`'s
  *     `omnibar_move_to_first_under()`. Uses `get_class( $wp_admin_bar )` as
  *     the scope so the closure works against both Core's `WP_Admin_Bar` and
  *     the test double `WP_Admin_Bar_Overflow_Test_Bar`.
@@ -254,8 +254,8 @@ class Admin_Bar_Overflow_Renderer {
 
 	/**
 	 * Move the trigger node so it sits before the first present id in
-	 * `$insert_before_raw_ids` inside `$wp_admin_bar->_nodes[]`. No-op when
-	 * none of the candidate ids are registered.
+	 * `$insert_before_raw_ids` inside the admin bar instance's private
+	 * `$nodes` map. No-op when none of the candidate ids are registered.
 	 *
 	 * Uses `Closure::bind` scoped to `get_class( $wp_admin_bar )` so the
 	 * closure can reach the private `$nodes` property on either the real
